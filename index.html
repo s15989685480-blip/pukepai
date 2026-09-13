@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>豪华扑克终极版（带战绩统计）</title>
+<title>豪华扑克终极版【修复进房间BUG+战绩统计】</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <script>
@@ -30,7 +30,6 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 .gold-gradient{background: linear-gradient(135deg,#d4af37,#fff1bc,#d4af37);-webkit-background-clip:text;color:transparent;}
 .table-bg{background:radial-gradient(circle,#10683b 0%,#083820 100%);box-shadow:inset 0 0 80px #042012,0 0 30px #000;position:relative;overflow:hidden;}
 
-/* 桌面动态光影 */
 .table-bg::before{
   content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
   background: conic-gradient(transparent,rgba(212,175,55,0.08),transparent 30%);
@@ -38,7 +37,6 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 }
 @keyframes tableLight{100%{transform:rotate(360deg);}}
 
-/* 卡牌高级动画 */
 .card{width:90px;height:130px;background:white;border-radius:8px;box-shadow:2px 4px 12px #0008;transition:0.4s cubic-bezier(0.17,0.67,0.13,1.25);position:relative;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:bold;transform:translateY(20px);opacity:0;}
 .card.show{transform:translateY(0);opacity:1;}
 .card-back{background:linear-gradient(135deg,#153460,#0b2040);border:3px solid #D4AF37;color:#D4AF37;}
@@ -54,11 +52,9 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 .btn-gold{background:linear-gradient(180deg,#e6c868,#b48c26);color:#111;font-weight:bold;box-shadow:0 4px 12px #d4af3744;transition:0.2s;}
 .btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 18px #d4af3766;}
 
-/* 金币掉落特效 */
 .coin-drop{position:absolute;width:20px;height:20px;background:linear-gradient(135deg,#ffd700,#ffb300);border-radius:50%;animation: coinFall 1.2s ease-out forwards;pointer-events:none;}
 @keyframes coinFall{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-120px) scale(0);opacity:0;}}
 
-/*战绩弹窗*/
 .stat-modal{backdrop-filter: blur(8px);}
 </style>
 </head>
@@ -151,9 +147,7 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 </div>
 </div>
 
-<!--豪华牌桌-->
 <div class="table-bg rounded-3xl p-6 min-h-[520px] relative overflow-hidden" id="gameTable">
-<!--庄家区域-->
 <div class="text-center mb-3 relative z-10">
 <div class="text-gold text-xl">🃏 庄家</div>
 <div id="dealerCards" class="flex justify-center gap-3 mt-3 min-h-[140px]"></div>
@@ -162,14 +156,12 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 
 <div class="border-y border-gold/20 my-5"></div>
 
-<!--玩家区域-->
 <div class="text-center relative z-10">
 <div class="text-gold text-xl">👤 你</div>
 <div id="playerCards" class="flex justify-center gap-3 mt-3 min-h-[140px]"></div>
 <div class="mt-1">点数：<span id="playerPoint">0</span></div>
 </div>
 
-<!--下注区-->
 <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
 <div id="betArea" class="text-center">
 <div class="mb-3">当前下注：<span id="betVal" class="text-yellow-300 text-xl">0</span></div>
@@ -193,16 +185,13 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 </div>
 
 <script>
-// ====================== 音效系统 ======================
 let audioEnabled = localStorage.getItem("pokerAudio") !== "false";
 let firstPlay = false;
 
-// 背景赌场氛围音
 const bgmAudio = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-casino-ambience-1013.mp3");
 bgmAudio.loop = true;
 bgmAudio.volume = 0.3;
 
-// 独立音效
 const soundChip = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-coin-wind-chime-1007.mp3");
 const soundDeal = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-cards-fan-out-1124.mp3");
 const soundFlip = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-quick-pop-997.mp3");
@@ -211,7 +200,6 @@ const soundLose = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-negativ
 
 [soundChip,soundDeal,soundFlip,soundWin,soundLose].forEach(s=>s.volume=0.4);
 
-// 语音播报
 function speak(text) {
   if (!audioEnabled) return;
   window.speechSynthesis.cancel();
@@ -246,7 +234,6 @@ function playBgm() {
 }
 function stopBgm() { bgmAudio.pause(); }
 
-// 首次解锁音频
 document.addEventListener("click",()=>{
   if(!firstPlay){
     firstPlay=true;
@@ -254,7 +241,6 @@ document.addEventListener("click",()=>{
   }
 },{once:true});
 
-// 金币飘落特效
 function showCoinEffect(){
   let box = document.getElementById("gameTable");
   for(let i=0;i<12;i++){
@@ -267,12 +253,18 @@ function showCoinEffect(){
   }
 }
 
-// ====================== 游戏数据（新增战绩字段） ======================
 const STORAGE_KEY = "pokerGameData";
-let gameData = JSON.parse(localStorage.getItem(STORAGE_KEY)||`{
-  "users":{},
-  "currentUser":null
-}`);
+let gameData;
+// 【修复】捕获localStorage读取异常，防止存档损坏直接卡死
+try{
+  const raw = localStorage.getItem(STORAGE_KEY);
+  gameData = raw ? JSON.parse(raw) : {users:{},currentUser:null};
+}catch(e){
+  console.log("存档损坏，重置存档");
+  localStorage.removeItem(STORAGE_KEY);
+  gameData = {users:{},currentUser:null};
+}
+
 let user = null;
 let roomLevel = 1;
 let minBet = 1000;
@@ -284,9 +276,11 @@ let deck = [];
 let playerCards = [];
 let dealerCards = [];
 
-function showPage(id){["loginModal","hallPage","gamePage"].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
+function showPage(id){
+  ["loginModal","hallPage","gamePage"].forEach(x=>document.getElementById(x).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
 
-// 战绩弹窗
 function openStat(){
   if(!user) return;
   const stat = user.stat||{total:0,win:0,lose:0,draw:0,profit:0};
@@ -310,13 +304,11 @@ function closeStat(){
   document.getElementById("statModal").classList.add("hidden");
 }
 
-//注册
 function register(){
   let acc = document.getElementById('accInput').value.trim();
   let pwd = document.getElementById('pwdInput').value.trim();
   if(!acc||!pwd){alert("账号密码不能为空");return;}
   if(gameData.users[acc]){alert("账号已存在");return;}
-  //新建用户带上战绩初始化
   gameData.users[acc]={
     pwd:pwd,
     coin:100000,
@@ -333,12 +325,12 @@ function login(){
   if(!gameData.users[acc]){alert("账号不存在");return;}
   if(gameData.users[acc].pwd!==pwd){alert("密码错误");return;}
   gameData.currentUser=acc;
-  saveData();loadUser();
+  saveData();
+  loadUser();
 }
 
 function loadUser(){
   user = gameData.users[gameData.currentUser];
-  //兼容旧账号没有stat，自动初始化
   if(!user.stat) user.stat = {total:0,win:0,lose:0,draw:0,profit:0};
   document.getElementById('hallUsername').innerText=gameData.currentUser;
   document.getElementById('hallCoin').innerText = formatNum(user.coin);
@@ -348,11 +340,15 @@ function loadUser(){
 }
 
 function logout(){
-  gameData.currentUser=null;saveData();showPage("loginModal");stopBgm();
+  gameData.currentUser=null;
+  saveData();
+  showPage("loginModal");
+  stopBgm();
 }
-function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(gameData));}
+function saveData(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(gameData));
+}
 
-// 每日福利
 function dailyReward(){
   let today = new Date().toLocaleDateString();
   if(user.lastDaily===today){speak("今日奖励已领取");alert("今日已经领取过奖励！明天再来");return;}
@@ -367,8 +363,9 @@ function dailyReward(){
 
 function formatNum(n){return Number(n).toLocaleString();}
 
-// 房间切换
+// 【重点修复enterRoom】
 function enterRoom(lv){
+  if(!user){alert("请先登录！");return;}
   roomLevel=lv;
   if(lv===1){minBet=1000;document.getElementById('roomTitle').innerText="🟢菜鸟场（最低下注1000）";speak("进入菜鸟场，请下注开始游戏");}
   if(lv===2){minBet=10000;document.getElementById('roomTitle').innerText="🔵普通场（最低下注10000）";speak("进入普通场，谨慎下注");}
@@ -411,7 +408,6 @@ function shuffleDeck(arr){
   }
 }
 
-// 下注音效
 function addBet(num){
   if(user.coin<bet+num){speak("游戏币不足");alert("游戏币不足");return;}
   bet+=num;
@@ -420,14 +416,12 @@ function addBet(num){
 }
 function clearBet(){bet=0;document.getElementById('betVal').innerText=0;}
 
-// 卡牌渲染+动画
 function renderCard(card,hide=false){
   if(hide) return `<div class="card card-back"><span class="show">🂠</span></div>`;
   let isRed = card.suit==='♥'||card.suit==='♦';
   return `<div class="card ${isRed?'card-red':'card-black'}"><span class="show">${card.val}${card.suit}</span></div>`;
 }
 
-// 点数计算
 function calcPoint(cardArr){
   let sum=0;let aces=0;
   for(let c of cardArr){
@@ -439,7 +433,6 @@ function calcPoint(cardArr){
   return sum;
 }
 
-// 开局发牌
 function startGame(){
   if(bet<minBet){speak("下注金额不足");alert(`最低下注${formatNum(minBet)}`);return;}
   if(bet>user.coin){speak("游戏币不足");alert("游戏币不足");return;}
@@ -460,7 +453,6 @@ function renderGame(hideDealer){
   let pHtml = playerCards.map(c=>renderCard(c)).join("");
   document.getElementById('playerCards').innerHTML=pHtml;
   document.getElementById('playerPoint').innerText=calcPoint(playerCards);
-  // 卡牌依次弹出动画
   document.querySelectorAll("#playerCards .card").forEach((el,idx)=>{
     setTimeout(()=>el.classList.add("show"),idx*200);
   });
@@ -479,7 +471,6 @@ function renderGame(hideDealer){
   }
 }
 
-// 要牌
 function hitCard(){
   playerCards.push(deck.pop());
   renderGame(true);
@@ -492,7 +483,6 @@ function hitCard(){
   }
 }
 
-// 停牌结算
 function standCard(){
   document.getElementById('gameOperate').classList.add('hidden');
   speak("玩家停牌，庄家补牌");
@@ -503,7 +493,6 @@ function standCard(){
   setTimeout(()=>{judgeResult();},600);
 }
 
-// 结算（更新战绩）
 function judgeResult(){
   let p = calcPoint(playerCards);
   let d = calcPoint(dealerCards);
@@ -552,7 +541,6 @@ function judgeResult(){
   setTimeout(()=>{resetTable();speak("新一局开始，请下注");},2500);
 }
 
-// 初始化
 (function init(){
   if(gameData.currentUser && gameData.users[gameData.currentUser]){
     loadUser();
