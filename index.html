@@ -1,348 +1,458 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>豪华扑克终极版【横竖屏自适应修复】</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>豪华赌场 · 黑杰克21点</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 <script>
 tailwind.config = {
   theme:{
     extend:{
       colors:{
-        gold:'#D4AF37',
-        darkCasino:'#0c1421',
-        greenTable:'#0b4d2c',
-        redChip:'#b81010',
-        blueChip:'#104cb8'
+        gold:"#D4AF37",
+        goldDark:"#9c7c23",
+        tableGreen:"#074b28",
+        deepDark:"#050912",
+        chipBlue:"#0f49b7",
+        chipRed:"#b71010",
+        chipGray:"#555860"
       },
       fontFamily:{
-        casino:["'Microsoft YaHei'", "sans-serif"]
+        casino:["Microsoft YaHei","sans‑serif"]
       }
     }
   }
 }
 </script>
 <style>
-*{font-family:casino;box-sizing:border-box;}
-body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-height:100vh;overflow-x:hidden;padding:0;margin:0;}
-.gold-gradient{background: linear-gradient(135deg,#d4af37,#fff1bc,#d4af37);-webkit-background-clip:text;color:transparent;}
-.table-bg{background:radial-gradient(circle,#10683b 0%,#083820 100%);box-shadow:inset 0 0 80px #042012,0 0 30px #000;position:relative;overflow:hidden;min-height:70vh;}
+*{box-sizing:border-box;font-family:casino;}
+body{margin:0;padding:0;background:#050912;color:#fff;overflow-x:hidden;}
 
-.table-bg::before{
-  content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
-  background: conic-gradient(transparent,rgba(212,175,55,0.08),transparent 30%);
-  animation: tableLight 8s linear infinite;
+/* 粒子赌场背景 */
+.bg‑casino{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background:radial-gradient(ellipse at 50% 50%,#101c30 0%,#050912 100%);
 }
-@keyframes tableLight{100%{transform:rotate(360deg);}}
+.particle{
+  position:absolute;border-radius:50%;background:rgba(212,175,55,0.25);filter:blur(8px);animation:floatPart 14s infinite ease‑in‑out;
+}
+@keyframes floatPart{
+  0%{transform:translateY(100vh) scale(0.2);opacity:0;}
+  40%{opacity:0.6;}
+  100%{transform:translateY(-120vh) scale(0.8);opacity:0;}
+}
 
-/* 卡片自适应 */
-.card{width:min(70px,22vw);height:min(100px,32vw);background:white;border-radius:8px;box-shadow:2px 4px 12px #0008;transition:0.4s cubic-bezier(0.17,0.67,0.13,1.25);position:relative;display:flex;align-items:center;justify-content:center;font-size:min(24px,7vw);font-weight:bold;transform:translateY(20px);opacity:0;}
-.card.show{transform:translateY(0);opacity:1;}
-.card-back{background:linear-gradient(135deg,#153460,#0b2040);border:3px solid #D4AF37;color:#D4AF37;}
-.card-red{color:#d62828;}
-.card-black{color:#111111;}
+/* 牌桌动态光效 */
+.table‑wrap{
+  background:radial-gradient(circle at center,#12703e 0%,#074b28 70%,#042716 100%);
+  box-shadow:inset 0 0 120px rgba(0,0,0,0.7),0 0 40px rgba(212,175,55,0.12);
+  border-radius:24px;
+  position:relative;overflow:hidden;
+}
+.table‑wrap::before{
+  content:"";position:absolute;inset:-100%;
+  background:conic-gradient(transparent 0deg,rgba(212,175,55,0.07)90deg,transparent 180deg);
+  animation:rotateGlow 12s linear infinite;
+}
+@keyframes rotateGlow{100%{transform:rotate(360deg);}}
 
-.chip{width:min(44px,13vw);height:min(44px,13vw);border-radius:50%;border:3px solid #fff2;display:flex;align-items:center;justify-content:center;font-size:min(11px,3vw);color:white;font-weight:bold;box-shadow:0 3px 8px #0009;transition:0.2s;}
-.chip:active{transform:scale(0.9);}
-.shine{animation:shine 2s infinite linear;}
-@keyframes shine{0%{filter:brightness(1);}50%{filter:brightness(1.25);}100%{filter:brightness(1);}}
+/* 卡牌弹性入场动画 */
+.card{
+  width:calc(9vh);height:calc(13vh);
+  background:#fff;border-radius:10px;box-shadow:0 6px 16px #000a;
+  display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:calc(3.5vh);
+  transform:translateY(30px) scale(0.85);opacity:0;
+}
+.card.animate‑deal{
+  animation:cardBounce 0.45s cubic‑bezier(0.17,0.67,0.13,1.25) forwards;
+}
+@keyframes cardBounce{
+  0%{transform:translateY(40px) scale(0.7);opacity:0;}
+  65%{transform:translateY(-8px) scale(1.04);opacity:1;}
+  100%{transform:translateY(0) scale(1);opacity:1;}
+}
+.card‑back{
+  background:linear-gradient(135deg,#15325c,#0c2242);
+  border:3px solid #D4AF37;color:#D4AF37;
+}
+.text‑red{color:#d82424;}
+.text‑black{color:#111;}
 
-.modal{backdrop-filter:blur(6px);}
-.btn-gold{background:linear-gradient(180deg,#e6c868,#b48c26);color:#111;font-weight:bold;box-shadow:0 4px 12px #d4af3744;transition:0.2s;font-size:min(16px,4vw);}
-.btn-gold:active{transform:translateY(-2px);box-shadow:0 6px 18px #d4af3766;}
+/* 筹码按钮 */
+.chip‑btn{
+  width:calc(9vh);height:calc(9vh);border-radius:100%;border:3px solid rgba(255,255,255,0.25);
+  box-shadow:0 4px 10px rgba(0,0,0,0.7);font-weight:bold;font-size:calc(2vh);
+  transition:transform 0.15s ease;
+}
+.chip‑btn:active{transform:scale(0.88);}
 
-.coin-drop{position:absolute;width:20px;height:20px;background:linear-gradient(135deg,#ffd700,#ffb300);border-radius:50%;animation: coinFall 1.2s ease-out forwards;pointer-events:none;}
-@keyframes coinFall{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-120px) scale(0);opacity:0;}}
+.btn‑gold{
+  background:linear-gradient(180deg,#e9cc70,#b68e27);color:#0a0a0a;font-weight:bold;
+  box-shadow:0 5px 14px rgba(212,175,55,0.35);border:none;border-radius:10px;
+  transition:0.15s;
+  font-size:calc(2.4vh);padding:0.7em 1.8em;
+}
+.btn‑gold:active{transform:translateY(2px);box-shadow:0 2px 6px rgba(212,175,55,0.25);}
 
-.stat-modal{backdrop-filter: blur(8px);}
+/* 金币掉落粒子 */
+.coin‑drop{
+  position:absolute;width:16px;height:16px;
+  background:linear-gradient(135deg,#ffd700,#ffaa00);border-radius:50%;
+  pointer‑events:none;
+  animation:coinFly 1.4s ease‑out forwards;
+}
+@keyframes coinFly{
+  0%{transform:translateY(0) scale(1);opacity:1;}
+  100%{transform:translateY(-160px) scale(0);opacity:0;}
+}
 
-/* ====== 横屏布局修复  flex布局，模仿截图样式 ====== */
-@media (orientation: landscape){
-  .table-bg{
-    display:flex;
-    flex-direction:column;
-    padding:1.5rem;
-  }
-  .dealer-wrap{
-    text-align:center;
-  }
-  .landscape-row{
-    flex:1;
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-  }
-  .player-wrap{
-    text-align:left;
-  }
-  .operate-wrap{
-    text-align:right;
-    padding-right:2rem;
-  }
-  #gameTable .border-y{display:none !important;}
-  .card{
-    width:min(90px,14vh);
-    height:min(120px,20vh);
-    font-size:min(28px,4.5vh);
+.gold‑text{
+  background:linear-gradient(120deg,#e9cc70,#fff8cd,#d4af37);
+  -webkit‑background‑clip:text;color:transparent;
+}
+
+.modal‑mask{
+  backdrop‑filter:blur(7px);background:rgba(0,0,0,0.72);
+}
+
+/* 锁定横屏样式，仅游戏桌页面生效 */
+.game‑landscape‑lock{
+  transform:rotate(0deg);
+}
+@media(max‑aspect‑ratio: 1/1){
+  /* 手机竖屏访问游戏，提示旋转设备 */
+  .rotate‑tip{
+    position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;
+    flex‑direction:column;text‑align:center;padding:2rem;
   }
 }
-@media (orientation: portrait){
-  .landscape-row{display:block;}
-  .dealer-wrap,.player-wrap,.operate-wrap{
-    text-align:center;
-  }
+@media(min‑aspect‑ratio:1/1){
+  .rotate‑tip{display:none;}
 }
 </style>
 </head>
-<body class="text-white overflow-x-hidden">
+<body>
+<div class="bg‑casino" id="particleBox"></div>
+
+<!-- 旋转提示：手机竖屏打开游戏页提示旋转横屏 -->
+<div class="rotate‑tip hidden" id="rotateTip">
+  <i class="fa fa‑mobile text‑6xl mb‑4 text‑gold"></i>
+  <p class="text‑gold text‑2xl">请把手机横向旋转</p>
+  <p class="text‑gray‑400 mt‑2">横屏体验完整赌场游戏</p>
+</div>
+
 <div id="app">
-<!--登录注册弹窗-->
-<div id="loginModal" class="modal fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
-<div class="bg-darkCasino border-2 border-gold/60 p-6 rounded-xl w-full max-w-md">
-<h2 class="text-2xl text-center gold-gradient font-bold mb-6">🎴 豪华扑克游戏</h2>
-<div class="mb-4">
-<label class="block mb-2 text-gold">账号</label>
-<input id="accInput" class="w-full bg-black/40 border border-gold/40 px-4 py-3 rounded text-white outline-none focus:border-gold">
-</div>
-<div class="mb-6">
-<label class="block mb-2 text-gold">密码</label>
-<input id="pwdInput" type="password" class="w-full bg-black/40 border border-gold/40 px-4 py-3 rounded text-white outline-none focus:border-gold">
-</div>
-<div class="grid grid-cols-2 gap-3">
-<button onclick="register()" class="btn-gold py-3 rounded-lg">注册账号</button>
-<button onclick="login()" class="btn-gold py-3 rounded-lg">登录</button>
-</div>
-<div class="text-gray-400 mt-4 text-sm text-center">注册无需验证，数据保存在本地浏览器</div>
-</div>
-</div>
+  <!--登录弹窗-->
+  <div id="loginModal" class="modal‑mask fixed inset‑0 z‑50 flex items‑center justify‑center p‑4">
+    <div class="w‑full max‑md max‑w‑md p‑6 rounded‑xl border‑2 border‑gold/50 bg‑deepDark">
+      <h2 class="text‑3xl gold‑text font‑bold text‑center mb‑6">🎴 豪华黑杰克赌场</h2>
+      <div class="mb‑4">
+        <label class="text‑gold block mb‑2">账号</label>
+        <input id="accInput" class="w‑full bg‑black/40 border border‑gold/40 px‑4 py‑3 rounded text‑white outline‑none focus:border‑gold">
+      </div>
+      <div class="mb‑6">
+        <label class="text‑gold block mb‑2">密码</label>
+        <input id="pwdInput" type="password" class="w‑full bg‑black/40 border border‑gold/40 px‑4 py‑3 rounded text‑white outline‑none focus:border‑gold">
+      </div>
+      <div class="grid grid‑cols‑2 gap‑3">
+        <button onclick="register()" class="btn‑gold py‑3 rounded‑lg">注册账号</button>
+        <button onclick="login()" class="btn‑gold py‑3 rounded‑lg">登录</button>
+      </div>
+      <p class="text‑gray‑500 mt‑4 text‑sm text‑center">本地存档，无需联网验证，数据保存在浏览器</p>
+    </div>
+  </div>
 
-<!--战绩统计弹窗-->
-<div id="statModal" class="stat-modal fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
-<div class="bg-darkCasino border-2 border-gold/60 p-6 rounded-xl w-full max-w-md">
-<h2 class="text-xl text-center gold-gradient font-bold mb-6">📊 个人战绩统计</h2>
-<div class="space-y-2 text-base">
-<p>总对局：<span id="statTotal" class="text-white">0</span></p>
-<p>胜利：<span id="statWin" class="text-green-400">0</span></p>
-<p>失败：<span id="statLose" class="text-red-400">0</span></p>
-<p>平局：<span id="statDraw" class="text-yellow-300">0</span></p>
-<p>胜率：<span id="statRate" class="text-gold">0%</span></p>
-<p>总盈亏：<span id="statProfit" class="">0</span></p>
-</div>
-<div class="mt-6 text-center">
-<button onclick="closeStat()" class="btn-gold px-6 py-2 rounded-lg">关闭</button>
-</div>
-</div>
-</div>
+  <!--战绩弹窗-->
+  <div id="statModal" class="modal‑mask fixed inset‑0 hidden z‑50 flex items‑center justify‑center p‑4">
+    <div class="w‑full max‑w‑md p‑6 rounded‑xl border‑2 border‑gold/50 bg‑deepDark">
+      <h2 class="text‑2xl gold‑text font‑bold text‑center mb‑5">📊 个人战绩统计</h2>
+      <div class="space‑y‑3 text‑lg">
+        <p>总对局：<span id="statTotal" class="text‑white">0</span></p>
+        <p>胜利：<span id="statWin" class="text‑green‑400">0</span></p>
+        <p>失败：<span id="statLose" class="text‑red‑400">0</span></p>
+        <p>平局：<span id="statDraw" class="text‑yellow‑300">0</span></p>
+        <p>胜率：<span id="statRate" class="text‑gold">0%</span></p>
+        <p>总盈亏：<span id="statProfit">0</span></p>
+      </div>
+      <div class="mt‑6 text‑center">
+        <button onclick="closeStat()" class="btn‑gold px‑6 py‑2 rounded‑lg">关闭</button>
+      </div>
+    </div>
+  </div>
 
-<!--大厅界面-->
-<div id="hallPage" class="hidden p-4 max-w-6xl mx-auto">
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-<div>
-<h1 class="text-3xl gold-gradient font-bold">扑克游戏大厅</h1>
-<p class="text-gray-400 mt-1">欢迎玩家：<span id="hallUsername" class="text-gold"></span></p>
-</div>
-<div class="flex flex-wrap items-center gap-2">
-<div class="chip bg-blueChip shine text-xs">游戏币<br><span id="hallCoin">0</span></div>
-<button onclick="dailyReward()" class="btn-gold px-3 py-2 rounded-lg">📅每日20万</button>
-<button onclick="openStat()" class="btn-gold px-3 py-2 rounded-lg">📊战绩</button>
-<button onclick="toggleBgm()" class="btn-gold px-3 py-2 rounded-lg">🔊音效</button>
-<button onclick="logout()" class="bg-red-700 px-3 py-2 rounded-lg">退出登录</button>
-</div>
-</div>
+  <!--大厅页面（竖屏可用）-->
+  <div id="hallPage" class="hidden p‑4 max‑w‑6xl mx‑auto">
+    <div class="flex flex‑col md:flex‑row justify‑between items‑start md:items‑center gap‑4 mb‑6">
+      <div>
+        <h1 class="text‑3xl gold‑text font‑bold">游戏大厅</h1>
+        <p class="text‑gray‑400 mt‑1">欢迎，玩家 <span id="hallUser" class="text‑gold"></span></p>
+      </div>
+      <div class="flex flex‑wrap gap‑2 items‑center">
+        <div class="chip‑btn bg‑chipBlue flex items‑center justify‑center text‑xs">
+          <div>游戏币<br><span id="hallCoin">0</span></div>
+        </div>
+        <button onclick="dailySign()" class="btn‑gold text‑sm py‑2 px‑3">📅每日领取20万</button>
+        <button onclick="openStat()" class="btn‑gold text‑sm py‑2 px‑3">📊战绩</button>
+        <button onclick="toggleAudio()" class="btn‑gold text‑sm py‑2 px‑3">🔊音效开关</button>
+        <button onclick="logout()" class="bg‑red‑700 px‑3 py‑2 rounded‑lg">退出登录</button>
+      </div>
+    </div>
+    <h3 class="text‑xl text‑gold mb‑3">选择游戏房间</h3>
+    <div class="grid grid‑cols‑1 md:grid‑cols‑3 gap‑4">
+      <div onclick="enterRoom(1)" class="border border‑green‑600/50 p‑5 rounded‑xl bg‑deepDark hover:border‑gold cursor‑pointer transition hover:scale‑[1.02]">
+        <h4 class="text‑2xl text‑green‑400">🟢 菜鸟场</h4>
+        <p class="mt‑2 text‑gray‑300">最低下注：1000</p>
+        <p class="text‑gray‑500">新手练习</p>
+      </div>
+      <div onclick="enterRoom(2)" class="border border‑blue‑600/50 p‑5 rounded‑xl bg‑deepDark hover:border‑gold cursor‑pointer transition hover:scale‑[1.02]">
+        <h4 class="text‑2xl text‑blue‑400">🔵 普通场</h4>
+        <p class="mt‑2 text‑gray‑300">最低下注：10000</p>
+        <p class="text‑gray‑500">中等筹码</p>
+      </div>
+      <div onclick="enterRoom(3)" class="border border‑red‑600/50 p‑5 rounded‑xl bg‑deepDark hover:border‑gold cursor‑pointer transition hover:scale‑[1.02]">
+        <h4 class="text‑2xl text‑red‑400">🔴 高手场</h4>
+        <p class="mt‑2 text‑gray‑300">最低下注：100000</p>
+        <p class="text‑gray‑500">高风险高回报</p>
+      </div>
+    </div>
+  </div>
 
-<h3 class="text-lg mb-3 text-gold">选择游戏房间</h3>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-<div onclick="enterRoom(1)" class="border border-green-600/50 p-4 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
-<h4 class="text-xl text-green-400">🟢 菜鸟场</h4>
-<p class="text-gray-300 mt-2">最低下注：1000</p>
-<p class="text-gray-400">适合新手练习</p>
-</div>
-<div onclick="enterRoom(2)" class="border border-blue-600/50 p-4 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
-<h4 class="text-xl text-blue-400">🔵 普通场</h4>
-<p class="text-gray-300 mt-2">最低下注：10000</p>
-<p class="text-gray-400">中等筹码对战</p>
-</div>
-<div onclick="enterRoom(3)" class="border border-red-600/50 p-4 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
-<h4 class="text-xl text-red-400">🔴 高手场</h4>
-<p class="text-gray-300 mt-2">最低下注：100000</p>
-<p class="text-gray-400">高风险高回报</p>
-</div>
-</div>
-</div>
+  <!--游戏桌页面，强制横屏-->
+  <div id="gamePage" class="hidden game‑landscape‑lock p‑3 max‑w‑7xl mx‑auto">
+    <div class="flex justify‑between items‑center mb‑3 gap‑2 flex‑wrap">
+      <div>
+        <button onclick="backHall()" class="bg‑gray‑700 px‑3 py‑1 rounded text‑sm"><i class="fa fa‑arrow‑left"></i> 返回大厅</button>
+        <span id="roomLabel" class="ml‑3 text‑gold text‑lg"></span>
+      </div>
+      <div class="flex gap‑3 items‑center">
+        <span>游戏币：<span id="gameCoin" class="text‑yellow‑300">0</span></span>
+        <button onclick="toggleAudio()" class="btn‑gold text‑sm py‑1 px‑3">🔊音效</button>
+      </div>
+    </div>
+    <div class="table‑wrap p‑6 relative" id="gameTable">
+      <!--庄家区域 顶部居中-->
+      <div class="text‑center mb‑6">
+        <div class="text‑gold text‑2xl mb‑2">🃏 庄家</div>
+        <div id="dealerCardsBox" class="flex gap‑3 justify‑center min‑h‑[14vh]"></div>
+        <div class="mt‑2 text‑lg">点数：<span id="dealerPoint">?</span></div>
+      </div>
 
-<!--游戏桌页面-->
-<div id="gamePage" class="hidden p-3 max-w-7xl mx-auto">
-<div class="flex flex-wrap justify-between items-center gap-2 mb-3">
-<div>
-<button onclick="backHall()" class="bg-gray-700 px-3 py-1 rounded text-sm"><i class="fa fa-arrow-left"></i> 返回大厅</button>
-<span id="roomTitle" class="ml-2 text-base text-gold"></span>
-</div>
-<div class="flex gap-3 items-center">
-<span class="text-sm">游戏币：<span id="gameCoin" class="text-yellow-300 text-base">0</span></span>
-<button onclick="toggleBgm()" class="btn-gold px-3 py-1 rounded-lg text-sm">🔊音效</button>
-</div>
-</div>
+      <div class="border‑y border‑gold/25 my‑5"></div>
 
-<div class="table-bg rounded-3xl p-4 relative overflow-hidden" id="gameTable">
-<div class="dealer-wrap text-center mb-3 relative z-10">
-<div class="text-gold text-lg">🃏 庄家</div>
-<div id="dealerCards" class="flex justify-center gap-2 mt-3 min-h-[100px] flex-wrap"></div>
-<div class="mt-1 text-sm">点数：<span id="dealerPoint">?</span></div>
-</div>
-
-<div class="border-y border-gold/20 my-4"></div>
-
-<div class="landscape-row">
-<div class="player-wrap relative z-10">
-<div class="text-gold text-lg">👤 你</div>
-<div id="playerCards" class="flex justify-center gap-2 mt-3 min-h-[100px] flex-wrap"></div>
-<div class="mt-1 text-sm">点数：<span id="playerPoint">0</span></div>
-</div>
-
-<div class="operate-wrap relative z-20 px-2">
-<div id="betArea" class="text-center">
-<div class="mb-2">当前下注：<span id="betVal" class="text-yellow-300 text-lg">0</span></div>
-<div class="flex justify-center gap-2 mb-3 flex-wrap">
-<button onclick="addBet(1000)" class="chip bg-blueChip">+1000</button>
-<button onclick="addBet(10000)" class="chip bg-redChip">+1万</button>
-<button onclick="clearBet()" class="chip bg-gray-600">清空</button>
-</div>
-<button onclick="startGame()" id="btnStart" class="btn-gold px-5 py-2 rounded-lg">确认下注，发牌开始</button>
-</div>
-
-<div id="gameOperate" class="hidden mt-4 flex justify-center gap-4">
-<button onclick="hitCard()" class="btn-gold px-5 py-2 rounded-lg">要牌</button>
-<button onclick="standCard()" class="btn-gold px-5 py-2 rounded-lg">停牌</button>
-</div>
-
-<div id="gameResult" class="hidden mt-4 text-xl font-bold text-center"></div>
-</div>
-</div>
-</div>
-</div>
+      <div class="flex flex‑row justify‑between items‑end">
+        <!--玩家区域 左下-->
+        <div class="text‑left">
+          <div class="text‑gold text‑2xl mb‑2">👤 你的手牌</div>
+          <div id="playerCardsBox" class="flex gap‑3 min‑h‑[14vh]"></div>
+          <div class="mt‑2 text‑lg">点数：<span id="playerPoint">0</span></div>
+        </div>
+        <!--操作面板 右下-->
+        <div class="text‑right">
+          <div id="betPanel">
+            <div class="mb‑3 text‑xl">当前下注：<span id="betDisplay" class="text‑yellow‑300">0</span></div>
+            <div class="flex gap‑3 justify‑end mb‑4">
+              <button onclick="addChip(1000)" class="chip‑btn bg‑chipBlue">+1000</button>
+              <button onclick="addChip(10000)" class="chip‑btn bg‑chipRed">+1万</button>
+              <button onclick="clearBet()" class="chip‑btn bg‑chipGray">清空</button>
+            </div>
+            <button onclick="gameStart()" id="btnDeal" class="btn‑gold">确认下注，发牌</button>
+          </div>
+          <div id="operateBtns" class="hidden mt‑5 flex gap‑4 justify‑end">
+            <button onclick="hitMe()" class="btn‑gold">要牌</button>
+            <button onclick="stand()" class="btn‑gold">停牌</button>
+          </div>
+          <div id="resultText" class="hidden mt‑5 text‑2xl font‑bold"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-let audioEnabled = localStorage.getItem("pokerAudio") !== "false";
-let firstPlay = false;
+// ========= 音效资源 =========
+const audioChip = new Audio("https://assets.mixkit.co/sfx/preview/mixkit‑coin‑wind‑chime‑1007.mp3");
+const audioDeal = new Audio("https://assets.mixkit.co/sfx/preview/mixkit‑cards‑fan‑out‑1124.mp3");
+const audioFlip = new Audio("https://assets.mixkit.co/sfx/preview/mixkit‑quick‑pop‑997.mp3");
+const audioWin = new Audio("https://assets.mixkit.co/sfx/preview/mixkit‑achievement‑bell‑600.mp3");
+const audioLose = new Audio("https://assets.mixkit.co/sfx/preview/mixkit‑negative‑tone‑2873.mp3");
+const audioBg = new Audio("https://assets.mixkit.co/sfx/preview/mixkit‑casino‑ambience‑1013.mp3");
+audioBg.loop = true;
+audioBg.volume = 0.22;
+[audioChip,audioDeal,audioFlip,audioWin,audioLose].forEach(s=>s.volume=0.4);
 
-const bgmAudio = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-casino-ambience-1013.mp3");
-bgmAudio.loop = true;
-bgmAudio.volume = 0.3;
+// 本地存储音效开关，刷新记忆
+let soundOn = localStorage.getItem("casinoSound") !== "false";
+let audioUserGesture = false;
 
-const soundChip = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-coin-wind-chime-1007.mp3");
-const soundDeal = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-cards-fan-out-1124.mp3");
-const soundFlip = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-quick-pop-997.mp3");
-const soundWin = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3");
-const soundLose = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-negative-tone-2873.mp3");
+// 浏览器自动播放修复：全局一次性手势解锁音频
+document.addEventListener("click",()=>{
+  if(!audioUserGesture){
+    audioUserGesture=true;
+    if(soundOn) audioBg.play().catch(()=>{});
+  }
+},{once:true});
 
-[soundChip,soundDeal,soundFlip,soundWin,soundLose].forEach(s=>s.volume=0.4);
+// 粒子背景生成
+const particleBox = document.getElementById("particleBox");
+for(let i=0;i<24;i++){
+  const p = document.createElement("div");
+  p.className="particle";
+  p.style.left = Math.random()*100+"%";
+  p.style.width = (Math.random()*35+8)+"px";
+  p.style.height = p.style.width;
+  p.style.animationDelay = Math.random()*14+"s";
+  particleBox.appendChild(p);
+}
 
-function speak(text) {
-  if (!audioEnabled) return;
+//语音播报
+function speakVoice(text){
+  if(!soundOn) return;
   window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "zh-CN";
-  utter.rate = 1.1;
-  utter.pitch = 1.05;
-  window.speechSynthesis.speak(utter);
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "zh‑CN";
+  u.rate =1.12;u.pitch=1.03;
+  window.speechSynthesis.speak(u);
 }
-
-function playSound(snd){
-  if(!audioEnabled||!firstPlay)return;
-  snd.currentTime=0;
-  snd.play().catch(e=>{});
+function playSnd(audioObj){
+  if(!soundOn||!audioUserGesture) return;
+  audioObj.currentTime=0;
+  audioObj.play().catch(()=>{});
 }
-
-function toggleBgm() {
-  audioEnabled = !audioEnabled;
-  localStorage.setItem("pokerAudio",audioEnabled);
-  if (audioEnabled) {
-    firstPlay=true;
-    bgmAudio.play().catch(e=>{});
-    speak("音效已开启");
-  } else {
-    bgmAudio.pause();
+function toggleAudio(){
+  soundOn = !soundOn;
+  localStorage.setItem("casinoSound",soundOn);
+  if(soundOn){
+    speakVoice("音效已开启，祝你好运");
+    if(audioUserGesture) audioBg.play().catch(()=>{});
+  }else{
+    audioBg.pause();
     window.speechSynthesis.cancel();
   }
 }
 
-function playBgm() {
-  if(audioEnabled&&firstPlay) bgmAudio.play().catch(e=>{});
-}
-function stopBgm() { bgmAudio.pause(); }
-
-document.addEventListener("click",()=>{
-  if(!firstPlay){
-    firstPlay=true;
-    playBgm();
-  }
-},{once:true});
-
-function showCoinEffect(){
-  let box = document.getElementById("gameTable");
-  for(let i=0;i<12;i++){
-    let c = document.createElement("div");
-    c.className="coin-drop";
-    c.style.left = (Math.random()*80+10)+"%";
-    c.style.bottom = "20%";
-    box.appendChild(c);
-    setTimeout(()=>c.remove(),1200);
+//金币掉落特效
+function spawnCoinBurst(){
+  const tableDom = document.getElementById("gameTable");
+  for(let i=0;i<16;i++){
+    const c = document.createElement("div");
+    c.className="coin‑drop";
+    c.style.left = (Math.random()*75+10)+"%";
+    c.style.bottom = "25%";
+    tableDom.appendChild(c);
+    setTimeout(()=>c.remove(),1400);
   }
 }
 
-const STORAGE_KEY = "pokerGameData";
-let gameData;
+//本地账号存储
+const STORAGE_KEY = "blackjackCasinoData";
+let saveData;
 try{
   const raw = localStorage.getItem(STORAGE_KEY);
-  gameData = raw ? JSON.parse(raw) : {users:{},currentUser:null};
+  saveData = raw ? JSON.parse(raw) : {users:{},currentUser:null};
 }catch(e){
-  console.log("存档损坏，重置存档");
   localStorage.removeItem(STORAGE_KEY);
-  gameData = {users:{},currentUser:null};
+  saveData = {users:{},currentUser:null};
 }
+let currentPlayer = null;
+let roomLv =1;
+let roomMinBet = 1000;
+let currentBet = 0;
+let deckCards = [];
+let userHand = [];
+let dealerHand = [];
+const suitList = ["♠","♥","♦","♣"];
+const valList = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
-let user = null;
-let roomLevel = 1;
-let minBet = 1000;
-let bet = 0;
-
-const suits = ["♠","♥","♦","♣"];
-const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-let deck = [];
-let playerCards = [];
-let dealerCards = [];
-
-function showPage(id){
-  ["loginModal","hallPage","gamePage"].forEach(x=>{
-    const el = document.getElementById(x);
-    if(el.id === "loginModal"){
-      el.classList.add('hidden');
-    }else{
-      el.classList.add('hidden');
-    }
+//页面切换
+function showOnlyPage(pageId){
+  ["loginModal","hallPage","gamePage"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(id==="loginModal") el.classList.add("hidden");
+    else el.classList.add("hidden");
   });
-  document.getElementById(id).classList.remove('hidden');
+  document.getElementById(pageId).classList.remove("hidden");
+  if(pageId==="gamePage") document.getElementById("rotateTip").classList.remove("hidden");
+  else document.getElementById("rotateTip").classList.add("hidden");
 }
 
+//注册登录
+function register(){
+  const acc = document.getElementById("accInput").value.trim();
+  const pwd = document.getElementById("pwdInput").value.trim();
+  if(!acc||!pwd){alert("账号密码不能为空");return;}
+  if(saveData.users[acc]){alert("账号已存在");return;}
+  saveData.users[acc]={
+    password:pwd,coin:100000,lastSignDay:"",
+    stat:{total:0,win:0,lose:0,draw:0,profit:0}
+  };
+  saveToLocal();
+  alert("注册成功，请登录");
+}
+function login(){
+  const acc = document.getElementById("accInput").value.trim();
+  const pwd = document.getElementById("pwdInput").value.trim();
+  if(!saveData.users[acc]){alert("账号不存在");return;}
+  if(saveData.users[acc].password !== pwd){alert("密码错误");return;}
+  saveData.currentUser = acc;
+  saveToLocal();
+  loadUserProfile();
+}
+function loadUserProfile(){
+  currentPlayer = saveData.users[saveData.currentUser];
+  if(!currentPlayer.stat) currentPlayer.stat = {total:0,win:0,lose:0,draw:0,profit:0};
+  document.getElementById("hallUser").innerText = saveData.currentUser;
+  document.getElementById("hallCoin").innerText = numFormat(currentPlayer.coin);
+  showOnlyPage("hallPage");
+  speakVoice(`欢迎回来${saveData.currentUser}，祝你手气爆棚`);
+}
+function logout(){
+  saveData.currentUser = null;
+  saveToLocal();
+  audioBg.pause();
+  showOnlyPage("loginModal");
+}
+function saveToLocal(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(saveData));
+}
+function numFormat(n){return Number(n).toLocaleString();}
+
+//每日签到领取
+function dailySign(){
+  const todayStr = new Date().toLocaleDateString();
+  if(currentPlayer.lastSignDay === todayStr){
+    speakVoice("今日奖励已经领取完毕");
+    alert("今日奖励已领取，请明天再来");
+    return;
+  }
+  currentPlayer.coin += 200000;
+  currentPlayer.lastSignDay = todayStr;
+  saveToLocal();
+  document.getElementById("hallCoin").innerText = numFormat(currentPlayer.coin);
+  playSnd(audioWin);
+  speakVoice("签到完成，获得二十万游戏币");
+  alert("签到成功！获得200000游戏币");
+}
+
+//战绩弹窗
 function openStat(){
-  if(!user) return;
-  const stat = user.stat||{total:0,win:0,lose:0,draw:0,profit:0};
-  let rate = stat.total===0 ? "0%" : ((stat.win/stat.total)*100).toFixed(1)+"%";
-  document.getElementById("statTotal").innerText = stat.total;
-  document.getElementById("statWin").innerText = stat.win;
-  document.getElementById("statLose").innerText = stat.lose;
-  document.getElementById("statDraw").innerText = stat.draw;
+  const st = currentPlayer.stat;
+  const rate = st.total===0 ? "0%" : ((st.win/st.total)*100).toFixed(1)+"%";
+  document.getElementById("statTotal").innerText = st.total;
+  document.getElementById("statWin").innerText = st.win;
+  document.getElementById("statLose").innerText = st.lose;
+  document.getElementById("statDraw").innerText = st.draw;
   document.getElementById("statRate").innerText = rate;
   const profitDom = document.getElementById("statProfit");
-  if(stat.profit >=0){
-    profitDom.innerText = "+"+formatNum(stat.profit);
-    profitDom.className = "text-green-400";
+  if(st.profit >=0){
+    profitDom.innerText = "+"+numFormat(st.profit);
+    profitDom.className = "text‑green‑400";
   }else{
-    profitDom.innerText = formatNum(stat.profit);
-    profitDom.className = "text-red-400";
+    profitDom.innerText = numFormat(st.profit);
+    profitDom.className = "text‑red‑400";
   }
   document.getElementById("statModal").classList.remove("hidden");
 }
@@ -350,248 +460,195 @@ function closeStat(){
   document.getElementById("statModal").classList.add("hidden");
 }
 
-function register(){
-  let acc = document.getElementById('accInput').value.trim();
-  let pwd = document.getElementById('pwdInput').value.trim();
-  if(!acc||!pwd){alert("账号密码不能为空");return;}
-  if(gameData.users[acc]){alert("账号已存在");return;}
-  gameData.users[acc]={
-    pwd:pwd,
-    coin:100000,
-    lastDaily:"",
-    stat:{total:0,win:0,lose:0,draw:0,profit:0}
-  };
-  saveData();
-  alert("注册成功，请登录");
-}
-
-function login(){
-  let acc = document.getElementById('accInput').value.trim();
-  let pwd = document.getElementById('pwdInput').value.trim();
-  if(!gameData.users[acc]){alert("账号不存在");return;}
-  if(gameData.users[acc].pwd!==pwd){alert("密码错误");return;}
-  gameData.currentUser=acc;
-  saveData();
-  loadUser();
-}
-
-function loadUser(){
-  user = gameData.users[gameData.currentUser];
-  if(!user.stat) user.stat = {total:0,win:0,lose:0,draw:0,profit:0};
-  document.getElementById('hallUsername').innerText=gameData.currentUser;
-  document.getElementById('hallCoin').innerText = formatNum(user.coin);
-  //修复：登录直接切大厅页面，不再等待音频初始化
-  showPage("hallPage");
-  speak("欢迎回来，游戏愉快");
-}
-
-function logout(){
-  gameData.currentUser=null;
-  saveData();
-  showPage("loginModal");
-  stopBgm();
-}
-function saveData(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(gameData));
-}
-
-function dailyReward(){
-  let today = new Date().toLocaleDateString();
-  if(user.lastDaily===today){speak("今日奖励已领取");alert("今日已经领取过奖励！明天再来");return;}
-  user.coin +=200000;
-  user.lastDaily=today;
-  saveData();
-  document.getElementById('hallCoin').innerText=formatNum(user.coin);
-  playSound(soundWin);
-  speak("领取成功，获得二十万游戏币");
-  alert("领取成功！获得200000游戏币");
-}
-
-function formatNum(n){return Number(n).toLocaleString();}
-
+//房间进入
 function enterRoom(lv){
-  if(!user){alert("请先登录！");return;}
-  roomLevel=lv;
-  if(lv===1){minBet=1000;document.getElementById('roomTitle').innerText="🟢菜鸟场（最低下注1000）";speak("进入菜鸟场，请下注开始游戏");}
-  if(lv===2){minBet=10000;document.getElementById('roomTitle').innerText="🔵普通场（最低下注10000）";speak("进入普通场，谨慎下注");}
-  if(lv===3){minBet=100000;document.getElementById('roomTitle').innerText="🔴高手场（最低下注10万）";speak("进入高手场，高手对决");}
-  document.getElementById('gameCoin').innerText=formatNum(user.coin);
-  resetTable();
-  showPage("gamePage");
+  roomLv = lv;
+  if(lv===1){roomMinBet=1000;document.getElementById("roomLabel").innerText="🟢菜鸟场｜最低下注1000";speakVoice("进入菜鸟场，请下注开始对局");}
+  if(lv===2){roomMinBet=10000;document.getElementById("roomLabel").innerText="🔵普通场｜最低下注10000";speakVoice("进入普通场，请谨慎下注");}
+  if(lv===3){roomMinBet=100000;document.getElementById("roomLabel").innerText="🔴高手场｜最低下注10万";speakVoice("进入高手场，祝你大获全胜");}
+  document.getElementById("gameCoin").innerText = numFormat(currentPlayer.coin);
+  resetGameTable();
+  showOnlyPage("gamePage");
 }
-
 function backHall(){
-  document.getElementById('hallCoin').innerText=formatNum(user.coin);
-  showPage("hallPage");
-  speak("返回游戏大厅");
+  document.getElementById("hallCoin").innerText = numFormat(currentPlayer.coin);
+  showOnlyPage("hallPage");
+  speakVoice("返回游戏大厅");
 }
 
-function resetTable(){
-  bet=0;playerCards=[];dealerCards=[];
-  document.getElementById('betVal').innerText=0;
-  document.getElementById('playerCards').innerHTML="";
-  document.getElementById('dealerCards').innerHTML="";
-  document.getElementById('playerPoint').innerText="0";
-  document.getElementById('dealerPoint').innerText="?";
-  document.getElementById('gameOperate').classList.add('hidden');
-  document.getElementById('gameResult').classList.add('hidden');
-  document.getElementById('btnStart').classList.remove('hidden');
-  deck = createDeck();
-  shuffleDeck(deck);
+//牌组
+function buildDeck(){
+  const arr=[];
+  for(let s of suitList) for(let v of valList) arr.push({suit:s,value:v});
+  return arr;
 }
-
-function createDeck(){
-  let d=[];
-  for(let s of suits){for(let v of values){d.push({suit:s,val:v})}}
-  return d;
-}
-function shuffleDeck(arr){
-  for(let i=arr.length-1;i>0;i--){
-    let j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+function shuffle(arr){
+  for(let i=arr.length‑1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
   }
 }
-
-function addBet(num){
-  if(user.coin<bet+num){speak("游戏币不足");alert("游戏币不足");return;}
-  bet+=num;
-  document.getElementById('betVal').innerText=formatNum(bet);
-  playSound(soundChip);
+//渲染卡牌
+function renderCardHtml(card,isBack=false){
+  if(isBack){
+    return `<div class="card card‑back animate‑deal">🂠</div>`;
+  }
+  const isRed = card.suit === "♥"||card.suit==="♦";
+  return `<div class="card animate‑deal ${isRed?'text‑red':'text‑black'}">${card.value}${card.suit}</div>`;
 }
-function clearBet(){bet=0;document.getElementById('betVal').innerText=0;}
-
-function renderCard(card,hide=false){
-  if(hide) return `<div class="card card-back"><span class="show">🂠</span></div>`;
-  let isRed = card.suit==='♥'||card.suit==='♦';
-  return `<div class="card ${isRed?'card-red':'card-black'}"><span class="show">${card.val}${card.suit}</span></div>`;
-}
-
-function calcPoint(cardArr){
-  let sum=0;let aces=0;
+//计算点数
+function calcPoints(cardArr){
+  let sum=0,aceCount=0;
   for(let c of cardArr){
-    if(c.val==="A"){sum+=11;aces++;}
-    else if(["J","Q","K"].includes(c.val)) sum+=10;
-    else sum+=Number(c.val);
+    if(c.value==="A"){sum+=11;aceCount++;}
+    else if(["J","Q","K"].includes(c.value)) sum+=10;
+    else sum += Number(c.value);
   }
-  while(sum>21&&aces>0){sum-=10;aces--;}
+  while(sum>21&&aceCount>0){sum‑=10;aceCount‑‑;}
   return sum;
 }
 
-function startGame(){
-  if(bet<minBet){speak("下注金额不足");alert(`最低下注${formatNum(minBet)}`);return;}
-  if(bet>user.coin){speak("游戏币不足");alert("游戏币不足");return;}
-  document.getElementById('btnStart').classList.add('hidden');
-  playSound(soundDeal);
+//下注
+function addChip(num){
+  if(currentPlayer.coin < currentBet+num){
+    speakVoice("游戏币不足");alert("游戏币不足");return;
+  }
+  currentBet += num;
+  document.getElementById("betDisplay").innerText = numFormat(currentBet);
+  playSnd(audioChip);
+}
+function clearBet(){
+  currentBet=0;
+  document.getElementById("betDisplay").innerText="0";
+}
 
-  playerCards=[deck.pop(),deck.pop()];
-  dealerCards=[deck.pop(),deck.pop()];
+//重置桌面
+function resetGameTable(){
+  currentBet=0;userHand=[];dealerHand=[];
+  document.getElementById("betDisplay").innerText=0;
+  document.getElementById("playerCardsBox").innerHTML="";
+  document.getElementById("dealerCardsBox").innerHTML="";
+  document.getElementById("playerPoint").innerText="0";
+  document.getElementById("dealerPoint").innerText="?";
+  document.getElementById("operateBtns").classList.add("hidden");
+  document.getElementById("resultText").classList.add("hidden");
+  document.getElementById("btnDeal").classList.remove("hidden");
+  deckCards = buildDeck();
+  shuffle(deckCards);
+}
+
+//开局发牌
+function gameStart(){
+  if(currentBet < roomMinBet){
+    speakVoice("下注金额没有达到房间最低限制");
+    alert(`房间最低下注 ${numFormat(roomMinBet)}`);
+    return;
+  }
+  if(currentBet>currentPlayer.coin){speakVoice("游戏币不足");alert("游戏币不足");return;}
+  document.getElementById("btnDeal").classList.add("hidden");
+  playSnd(audioDeal);
+  userHand = [deckCards.pop(),deckCards.pop()];
+  dealerHand = [deckCards.pop(),deckCards.pop()];
   renderGame(true);
-
   setTimeout(()=>{
-    document.getElementById('gameOperate').classList.remove('hidden');
-    speak("发牌完成，请问是否要牌？");
-  },400);
+    document.getElementById("operateBtns").classList.remove("hidden");
+    speakVoice("发牌结束，请选择要牌或者停牌");
+  },600);
 }
-
-function renderGame(hideDealer){
-  let pHtml = playerCards.map(c=>renderCard(c)).join("");
-  document.getElementById('playerCards').innerHTML=pHtml;
-  document.getElementById('playerPoint').innerText=calcPoint(playerCards);
-  document.querySelectorAll("#playerCards .card").forEach((el,idx)=>{
-    setTimeout(()=>el.classList.add("show"),idx*200);
-  });
-  playSound(soundFlip);
-
-  if(hideDealer){
-    document.getElementById('dealerCards').innerHTML=renderCard(dealerCards[0],false)+renderCard(dealerCards[1],true);
-    document.getElementById('dealerPoint').innerText="?";
+function renderGame(hideDealerCard){
+  document.getElementById("playerCardsBox").innerHTML = userHand.map(c=>renderCardHtml(c,false)).join("");
+  document.getElementById("playerPoint").innerText = calcPoints(userHand);
+  playSnd(audioFlip);
+  if(hideDealerCard){
+    document.getElementById("dealerCardsBox").innerHTML = renderCardHtml(dealerHand[0],false)+renderCardHtml(dealerHand[1],true);
+    document.getElementById("dealerPoint").innerText = "?";
   }else{
-    let dHtml = dealerCards.map(c=>renderCard(c)).join("");
-    document.getElementById('dealerCards').innerHTML=dHtml;
-    document.getElementById('dealerPoint').innerText=calcPoint(dealerCards);
-    document.querySelectorAll("#dealerCards .card").forEach((el,idx)=>{
-      setTimeout(()=>el.classList.add("show"),idx*200);
-    });
+    document.getElementById("dealerCardsBox").innerHTML = dealerHand.map(c=>renderCardHtml(c,false)).join("");
+    document.getElementById("dealerPoint").innerText = calcPoints(dealerHand);
   }
 }
 
-function hitCard(){
-  playerCards.push(deck.pop());
+//要牌
+function hitMe(){
+  userHand.push(deckCards.pop());
   renderGame(true);
-  let p = calcPoint(playerCards);
+  const p = calcPoints(userHand);
   if(p>=21){
-    speak("点数超过二十一点，爆牌");
-    standCard();
+    speakVoice("爆牌，自动停牌");
+    stand();
   }else{
-    speak("已要牌，是否继续要牌？");
+    speakVoice("已拿到新牌，继续要牌或者停牌");
   }
 }
-
-function standCard(){
-  document.getElementById('gameOperate').classList.add('hidden');
-  speak("玩家停牌，庄家补牌");
-  while(calcPoint(dealerCards)<17){
-    dealerCards.push(deck.pop());
+//停牌，庄家操作
+function stand(){
+  document.getElementById("operateBtns").classList.add("hidden");
+  speakVoice("玩家停牌，庄家开始补牌");
+  while(calcPoints(dealerHand) < 17){
+    dealerHand.push(deckCards.pop());
   }
   renderGame(false);
-  setTimeout(()=>{judgeResult();},600);
+  setTimeout(()=>judgeRound(),700);
 }
 
-function judgeResult(){
-  let p = calcPoint(playerCards);
-  let d = calcPoint(dealerCards);
-  let resDom = document.getElementById('gameResult');
-  resDom.classList.remove('hidden');
-  let win = 0;
-  const stat = user.stat;
-  stat.total +=1;
+//结算
+function judgeRound(){
+  const pPoint = calcPoints(userHand);
+  const dPoint = calcPoints(dealerHand);
+  const resDom = document.getElementById("resultText");
+  resDom.classList.remove("hidden");
+  const stat = currentPlayer.stat;
+  stat.total += 1;
+  let winState = 0;
 
-  if(p>21){
-    win=-1;resDom.innerHTML='💥你爆牌，输掉本局！<span class="text-red-400"></span>';
-    speak("爆牌失败，本局输掉");playSound(soundLose);
-    stat.lose +=1;
-    stat.profit -= bet;
-  }
-  else if(d>21){
-    win=1;resDom.innerHTML='🎉庄家爆牌，你赢了！<span class="text-green-400"></span>';
-    speak("庄家爆牌，恭喜获胜");playSound(soundWin);showCoinEffect();
-    stat.win +=1;
-    stat.profit += bet;
-  }
-  else if(p>d){
-    win=1;resDom.innerHTML='🎉恭喜你，本局胜利！<span class="text-green-400"></span>';
-    speak("恭喜你，本局胜利");playSound(soundWin);showCoinEffect();
-    stat.win +=1;
-    stat.profit += bet;
-  }
-  else if(p<d){
-    win=-1;resDom.innerHTML='😞很遗憾，本局落败<span class="text-red-400"></span>';
-    speak("很遗憾，本局失败");playSound(soundLose);
-    stat.lose +=1;
-    stat.profit -= bet;
-  }
-  else {
-    win=0;resDom.innerHTML='🤝平局，筹码全额返还<span class="text-yellow-300"></span>';
-    speak("本局平局，筹码返还");
+  if(pPoint>21){
+    winState =‑1;
+    resDom.innerHTML = "💥你爆牌，输掉本局！<span class='text‑red‑400'></span>";
+    speakVoice("爆牌失败，筹码输掉");playSnd(audioLose);
+    stat.lose +=1;stat.profit‑=currentBet;
+  }else if(dPoint>21){
+    winState=1;
+    resDom.innerHTML="🎉庄家爆牌，你赢！<span class='text‑green‑400'></span>";
+    speakVoice("庄家爆牌，恭喜获胜！");playSnd(audioWin);spawnCoinBurst();
+    stat.win +=1;stat.profit +=currentBet;
+  }else if(pPoint>dPoint){
+    winState=1;
+    resDom.innerHTML="🎉恭喜，本局胜利！<span class='text‑green‑400'></span>";
+    speakVoice("恭喜，本局胜利");playSnd(audioWin);spawnCoinBurst();
+    stat.win +=1;stat.profit +=currentBet;
+  }else if(pPoint<dPoint){
+    winState=‑1;
+    resDom.innerHTML="😞本局落败<span class='text‑red‑400'></span>";
+    speakVoice("很遗憾，本局失败");playSnd(audioLose);
+    stat.lose +=1;stat.profit‑=currentBet;
+  }else{
+    winState=0;
+    resDom.innerHTML="🤝平局，筹码返还<span class='text‑yellow‑300'></span>";
+    speakVoice("本局平局，筹码返还");
     stat.draw +=1;
   }
 
-  if(win===1) user.coin += bet;
-  if(win===-1) user.coin -= bet;
-  saveData();
-  document.getElementById('gameCoin').innerText=formatNum(user.coin);
-  user=gameData.users[gameData.currentUser];
+  if(winState===1) currentPlayer.coin += currentBet;
+  if(winState===‑1) currentPlayer.coin‑=currentBet;
+  saveToLocal();
+  document.getElementById("gameCoin").innerText = numFormat(currentPlayer.coin);
+  currentPlayer = saveData.users[saveData.currentUser];
 
-  setTimeout(()=>{resetTable();speak("新一局开始，请下注");},2500);
+  setTimeout(()=>{
+    resetGameTable();
+    speakVoice("新一局，请下注");
+  },2600);
 }
 
-(function init(){
-  if(gameData.currentUser && gameData.users[gameData.currentUser]){
-    loadUser();
+//初始化读取存档
+(function initApp(){
+  if(saveData.currentUser && saveData.users[saveData.currentUser]){
+    loadUserProfile();
   }else{
-    showPage("loginModal");
+    showOnlyPage("loginModal");
   }
 })();
 </script>
 </body>
 </html>
+
