@@ -369,18 +369,17 @@ let dealerHand = [];
 const suitList = ["♠","♥","♦","♣"];
 const valList = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
-//页面切换
+//=====【修复】页面切换函数，不再自动控制rotateTip=====
 function showOnlyPage(pageId){
+  //全部页面隐藏
   ["loginModal","hallPage","gamePage"].forEach(id=>{
     const el = document.getElementById(id);
-    el.classList.add("hidden");
+    if(el) el.classList.add("hidden");
   });
-  document.getElementById(pageId).classList.remove("hidden");
-  if(pageId==="gamePage"){
-    document.getElementById("rotateTip").classList.remove("hidden");
-  }else{
-    document.getElementById("rotateTip").classList.add("hidden");
-  }
+  //显示目标页面
+  const target = document.getElementById(pageId);
+  if(target) target.classList.remove("hidden");
+  console.log("切换页面到：",pageId);
 }
 
 //注册登录
@@ -472,8 +471,9 @@ function closeStat(){
   document.getElementById("statModal").classList.add("hidden");
 }
 
-//房间进入
+//房间进入【修复】
 function enterRoom(lv){
+  console.log("点击房间：",lv);
   roomLv = lv;
   if(lv===1){roomMinBet=1000;document.getElementById("roomLabel").innerText="🟢菜鸟场｜最低下注1000";speakVoice("进入菜鸟场，请下注开始对局");}
   if(lv===2){roomMinBet=10000;document.getElementById("roomLabel").innerText="🔵普通场｜最低下注10000";speakVoice("进入普通场，请谨慎下注");}
@@ -481,10 +481,14 @@ function enterRoom(lv){
   document.getElementById("gameCoin").innerText = numFormat(currentPlayer.coin);
   resetGameTable();
   showOnlyPage("gamePage");
+  // 进入游戏页才打开旋转提示
+  document.getElementById("rotateTip").classList.remove("hidden");
 }
 function backHall(){
   document.getElementById("hallCoin").innerText = numFormat(currentPlayer.coin);
   showOnlyPage("hallPage");
+  //回到大厅，关闭旋转遮罩
+  document.getElementById("rotateTip").classList.add("hidden");
   speakVoice("返回游戏大厅");
 }
 
