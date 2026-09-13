@@ -119,32 +119,11 @@ body{margin:0;padding:0;background:#050912;color:#fff;overflow-x:hidden;}
   backdrop-filter:blur(7px);background:rgba(0,0,0,0.72);
 }
 
-/* 锁定横屏样式，仅游戏桌页面生效 */
-.game-landscape-lock{
-  transform:rotate(0deg);
-}
-@media(max-aspect-ratio: 1/1){
-  /* 手机竖屏访问游戏，提示旋转设备 */
-  .rotate-tip{
-    position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;
-    flex-direction:column;text-align:center;padding:2rem;
-  }
-}
-@media(min-aspect-ratio:1/1){
-  .rotate-tip{display:none;}
-}
 .hidden{display:none !important;}
 </style>
 </head>
 <body>
 <div class="bg-casino" id="particleBox"></div>
-
-<!-- 旋转提示：手机竖屏打开游戏页提示旋转横屏 -->
-<div class="rotate-tip hidden" id="rotateTip">
-  <i class="fa fa-mobile text-6xl mb-4 text-gold"></i>
-  <p class="text-gold text-2xl">请把手机横向旋转</p>
-  <p class="text-gray-400 mt-2">横屏体验完整赌场游戏</p>
-</div>
 
 <div id="app">
   <!--登录弹窗-->
@@ -222,8 +201,8 @@ body{margin:0;padding:0;background:#050912;color:#fff;overflow-x:hidden;}
     </div>
   </div>
 
-  <!--游戏桌页面，强制横屏-->
-  <div id="gamePage" class="hidden game-landscape-lock p-3 max-w-7xl mx-auto">
+  <!--游戏桌页面-->
+  <div id="gamePage" class="hidden p-3 max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-3 gap-2 flex-wrap">
       <div>
         <button onclick="backHall()" class="bg-gray-700 px-3 py-1 rounded text-sm"><i class="fa fa-arrow-left"></i> 返回大厅</button>
@@ -369,7 +348,7 @@ let dealerHand = [];
 const suitList = ["♠","♥","♦","♣"];
 const valList = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
-//=====【修复】页面切换函数，不再自动控制rotateTip=====
+//页面切换函数
 function showOnlyPage(pageId){
   //全部页面隐藏
   ["loginModal","hallPage","gamePage"].forEach(id=>{
@@ -471,7 +450,7 @@ function closeStat(){
   document.getElementById("statModal").classList.add("hidden");
 }
 
-//房间进入【修复】
+//房间进入
 function enterRoom(lv){
   console.log("点击房间：",lv);
   roomLv = lv;
@@ -481,14 +460,10 @@ function enterRoom(lv){
   document.getElementById("gameCoin").innerText = numFormat(currentPlayer.coin);
   resetGameTable();
   showOnlyPage("gamePage");
-  // 进入游戏页才打开旋转提示
-  document.getElementById("rotateTip").classList.remove("hidden");
 }
 function backHall(){
   document.getElementById("hallCoin").innerText = numFormat(currentPlayer.coin);
   showOnlyPage("hallPage");
-  //回到大厅，关闭旋转遮罩
-  document.getElementById("rotateTip").classList.add("hidden");
   speakVoice("返回游戏大厅");
 }
 
