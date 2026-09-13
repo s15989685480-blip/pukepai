@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>豪华扑克终极版【修复进房间BUG+战绩统计】</title>
+<title>豪华扑克终极版【横竖屏自适应】</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <script>
@@ -25,8 +25,8 @@ tailwind.config = {
 }
 </script>
 <style>
-*{font-family:casino;}
-body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-height:100vh;overflow-x:hidden;}
+*{font-family:casino;box-sizing:border-box;}
+body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-height:100vh;overflow-x:hidden;padding:0;margin:0;}
 .gold-gradient{background: linear-gradient(135deg,#d4af37,#fff1bc,#d4af37);-webkit-background-clip:text;color:transparent;}
 .table-bg{background:radial-gradient(circle,#10683b 0%,#083820 100%);box-shadow:inset 0 0 80px #042012,0 0 30px #000;position:relative;overflow:hidden;}
 
@@ -37,33 +37,63 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 }
 @keyframes tableLight{100%{transform:rotate(360deg);}}
 
-.card{width:90px;height:130px;background:white;border-radius:8px;box-shadow:2px 4px 12px #0008;transition:0.4s cubic-bezier(0.17,0.67,0.13,1.25);position:relative;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:bold;transform:translateY(20px);opacity:0;}
+/* 卡片自适应 */
+.card{width:min(70px,22vw);height:min(100px,32vw);background:white;border-radius:8px;box-shadow:2px 4px 12px #0008;transition:0.4s cubic-bezier(0.17,0.67,0.13,1.25);position:relative;display:flex;align-items:center;justify-content:center;font-size:min(24px,7vw);font-weight:bold;transform:translateY(20px);opacity:0;}
 .card.show{transform:translateY(0);opacity:1;}
 .card-back{background:linear-gradient(135deg,#153460,#0b2040);border:3px solid #D4AF37;color:#D4AF37;}
 .card-red{color:#d62828;}
 .card-black{color:#111111;}
 
-.chip{width:44px;height:44px;border-radius:50%;border:3px solid #fff2;display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;box-shadow:0 3px 8px #0009;transition:0.2s;}
+.chip{width:min(44px,13vw);height:min(44px,13vw);border-radius:50%;border:3px solid #fff2;display:flex;align-items:center;justify-content:center;font-size:min(11px,3vw);color:white;font-weight:bold;box-shadow:0 3px 8px #0009;transition:0.2s;}
 .chip:active{transform:scale(0.9);}
 .shine{animation:shine 2s infinite linear;}
 @keyframes shine{0%{filter:brightness(1);}50%{filter:brightness(1.25);}100%{filter:brightness(1);}}
 
 .modal{backdrop-filter:blur(6px);}
-.btn-gold{background:linear-gradient(180deg,#e6c868,#b48c26);color:#111;font-weight:bold;box-shadow:0 4px 12px #d4af3744;transition:0.2s;}
-.btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 18px #d4af3766;}
+.btn-gold{background:linear-gradient(180deg,#e6c868,#b48c26);color:#111;font-weight:bold;box-shadow:0 4px 12px #d4af3744;transition:0.2s;font-size:min(16px,4vw);}
+.btn-gold:active{transform:translateY(-2px);box-shadow:0 6px 18px #d4af3766;}
 
 .coin-drop{position:absolute;width:20px;height:20px;background:linear-gradient(135deg,#ffd700,#ffb300);border-radius:50%;animation: coinFall 1.2s ease-out forwards;pointer-events:none;}
 @keyframes coinFall{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-120px) scale(0);opacity:0;}}
 
 .stat-modal{backdrop-filter: blur(8px);}
+
+/* ====== 横屏布局 ====== */
+@media (orientation: landscape){
+  .table-bg{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap:1rem;
+    padding:1.5rem;
+    min-height:70vh;
+  }
+  .dealer-wrap{grid-column: 1 / -1;}
+  .player-wrap{}
+  .operate-wrap{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+  }
+  #gameTable .border-y{display:none;}
+  .card{
+    width:min(90px,14vh);
+    height:min(120px,20vh);
+    font-size:min(28px,4.5vh);
+  }
+}
+@media (orientation: portrait){
+  .dealer-wrap,.player-wrap,.operate-wrap{}
+}
 </style>
 </head>
 <body class="text-white overflow-x-hidden">
 <div id="app">
 <!--登录注册弹窗-->
-<div id="loginModal" class="modal fixed inset-0 bg-black/75 flex items-center justify-center z-50">
-<div class="bg-darkCasino border-2 border-gold/60 p-8 rounded-xl w-full max-w-md">
-<h2 class="text-3xl text-center gold-gradient font-bold mb-6">🎴 豪华扑克游戏</h2>
+<div id="loginModal" class="modal fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
+<div class="bg-darkCasino border-2 border-gold/60 p-6 rounded-xl w-full max-w-md">
+<h2 class="text-2xl text-center gold-gradient font-bold mb-6">🎴 豪华扑克游戏</h2>
 <div class="mb-4">
 <label class="block mb-2 text-gold">账号</label>
 <input id="accInput" class="w-full bg-black/40 border border-gold/40 px-4 py-3 rounded text-white outline-none focus:border-gold">
@@ -81,10 +111,10 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 </div>
 
 <!--战绩统计弹窗-->
-<div id="statModal" class="stat-modal fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50">
-<div class="bg-darkCasino border-2 border-gold/60 p-8 rounded-xl w-full max-w-md">
-<h2 class="text-2xl text-center gold-gradient font-bold mb-6">📊 个人战绩统计</h2>
-<div class="space-y-3 text-lg">
+<div id="statModal" class="stat-modal fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
+<div class="bg-darkCasino border-2 border-gold/60 p-6 rounded-xl w-full max-w-md">
+<h2 class="text-xl text-center gold-gradient font-bold mb-6">📊 个人战绩统计</h2>
+<div class="space-y-2 text-base">
 <p>总对局：<span id="statTotal" class="text-white">0</span></p>
 <p>胜利：<span id="statWin" class="text-green-400">0</span></p>
 <p>失败：<span id="statLose" class="text-red-400">0</span></p>
@@ -99,35 +129,35 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 </div>
 
 <!--大厅界面-->
-<div id="hallPage" class="hidden p-6 max-w-6xl mx-auto">
-<div class="flex justify-between items-center mb-8">
+<div id="hallPage" class="hidden p-4 max-w-6xl mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
 <div>
-<h1 class="text-4xl gold-gradient font-bold">扑克游戏大厅</h1>
+<h1 class="text-3xl gold-gradient font-bold">扑克游戏大厅</h1>
 <p class="text-gray-400 mt-1">欢迎玩家：<span id="hallUsername" class="text-gold"></span></p>
 </div>
-<div class="flex flex-wrap items-center gap-3">
+<div class="flex flex-wrap items-center gap-2">
 <div class="chip bg-blueChip shine text-xs">游戏币<br><span id="hallCoin">0</span></div>
-<button onclick="dailyReward()" class="btn-gold px-4 py-2 rounded-lg">📅每日20万</button>
-<button onclick="openStat()" class="btn-gold px-4 py-2 rounded-lg">📊战绩</button>
+<button onclick="dailyReward()" class="btn-gold px-3 py-2 rounded-lg">📅每日20万</button>
+<button onclick="openStat()" class="btn-gold px-3 py-2 rounded-lg">📊战绩</button>
 <button onclick="toggleBgm()" class="btn-gold px-3 py-2 rounded-lg">🔊音效</button>
-<button onclick="logout()" class="bg-red-700 px-4 py-2 rounded-lg">退出登录</button>
+<button onclick="logout()" class="bg-red-700 px-3 py-2 rounded-lg">退出登录</button>
 </div>
 </div>
 
-<h3 class="text-xl mb-4 text-gold">选择游戏房间</h3>
-<div class="grid md:grid-cols-3 gap-6">
-<div onclick="enterRoom(1)" class="border border-green-600/50 p-6 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
-<h4 class="text-2xl text-green-400">🟢 菜鸟场</h4>
+<h3 class="text-lg mb-3 text-gold">选择游戏房间</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div onclick="enterRoom(1)" class="border border-green-600/50 p-4 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
+<h4 class="text-xl text-green-400">🟢 菜鸟场</h4>
 <p class="text-gray-300 mt-2">最低下注：1000</p>
 <p class="text-gray-400">适合新手练习</p>
 </div>
-<div onclick="enterRoom(2)" class="border border-blue-600/50 p-6 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
-<h4 class="text-2xl text-blue-400">🔵 普通场</h4>
+<div onclick="enterRoom(2)" class="border border-blue-600/50 p-4 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
+<h4 class="text-xl text-blue-400">🔵 普通场</h4>
 <p class="text-gray-300 mt-2">最低下注：10000</p>
 <p class="text-gray-400">中等筹码对战</p>
 </div>
-<div onclick="enterRoom(3)" class="border border-red-600/50 p-6 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
-<h4 class="text-2xl text-red-400">🔴 高手场</h4>
+<div onclick="enterRoom(3)" class="border border-red-600/50 p-4 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
+<h4 class="text-xl text-red-400">🔴 高手场</h4>
 <p class="text-gray-300 mt-2">最低下注：100000</p>
 <p class="text-gray-400">高风险高回报</p>
 </div>
@@ -135,50 +165,50 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 </div>
 
 <!--游戏桌页面-->
-<div id="gamePage" class="hidden p-4 max-w-7xl mx-auto">
-<div class="flex justify-between items-center mb-3">
+<div id="gamePage" class="hidden p-3 max-w-7xl mx-auto">
+<div class="flex flex-wrap justify-between items-center gap-2 mb-3">
 <div>
-<button onclick="backHall()" class="bg-gray-700 px-3 py-1 rounded"><i class="fa fa-arrow-left"></i> 返回大厅</button>
-<span id="roomTitle" class="ml-4 text-xl text-gold"></span>
+<button onclick="backHall()" class="bg-gray-700 px-3 py-1 rounded text-sm"><i class="fa fa-arrow-left"></i> 返回大厅</button>
+<span id="roomTitle" class="ml-2 text-base text-gold"></span>
 </div>
-<div class="flex gap-4 items-center">
-<span>游戏币：<span id="gameCoin" class="text-yellow-300 text-xl">0</span></span>
-<button onclick="toggleBgm()" class="btn-gold px-3 py-2 rounded-lg">🔊音效开关</button>
+<div class="flex gap-3 items-center">
+<span class="text-sm">游戏币：<span id="gameCoin" class="text-yellow-300 text-base">0</span></span>
+<button onclick="toggleBgm()" class="btn-gold px-3 py-1 rounded-lg text-sm">🔊音效</button>
 </div>
-</div>
-
-<div class="table-bg rounded-3xl p-6 min-h-[520px] relative overflow-hidden" id="gameTable">
-<div class="text-center mb-3 relative z-10">
-<div class="text-gold text-xl">🃏 庄家</div>
-<div id="dealerCards" class="flex justify-center gap-3 mt-3 min-h-[140px]"></div>
-<div class="mt-1">点数：<span id="dealerPoint">?</span></div>
 </div>
 
-<div class="border-y border-gold/20 my-5"></div>
-
-<div class="text-center relative z-10">
-<div class="text-gold text-xl">👤 你</div>
-<div id="playerCards" class="flex justify-center gap-3 mt-3 min-h-[140px]"></div>
-<div class="mt-1">点数：<span id="playerPoint">0</span></div>
+<div class="table-bg rounded-3xl p-4 relative overflow-hidden" id="gameTable">
+<div class="dealer-wrap text-center mb-3 relative z-10">
+<div class="text-gold text-lg">🃏 庄家</div>
+<div id="dealerCards" class="flex justify-center gap-2 mt-3 min-h-[100px] flex-wrap"></div>
+<div class="mt-1 text-sm">点数：<span id="dealerPoint">?</span></div>
 </div>
 
-<div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+<div class="border-y border-gold/20 my-4"></div>
+
+<div class="player-wrap text-center relative z-10">
+<div class="text-gold text-lg">👤 你</div>
+<div id="playerCards" class="flex justify-center gap-2 mt-3 min-h-[100px] flex-wrap"></div>
+<div class="mt-1 text-sm">点数：<span id="playerPoint">0</span></div>
+</div>
+
+<div class="operate-wrap relative z-20 w-full px-2">
 <div id="betArea" class="text-center">
-<div class="mb-3">当前下注：<span id="betVal" class="text-yellow-300 text-xl">0</span></div>
-<div class="flex justify-center gap-2 mb-3">
+<div class="mb-2">当前下注：<span id="betVal" class="text-yellow-300 text-lg">0</span></div>
+<div class="flex justify-center gap-2 mb-3 flex-wrap">
 <button onclick="addBet(1000)" class="chip bg-blueChip">+1000</button>
 <button onclick="addBet(10000)" class="chip bg-redChip">+1万</button>
 <button onclick="clearBet()" class="chip bg-gray-600">清空</button>
 </div>
-<button onclick="startGame()" id="btnStart" class="btn-gold px-6 py-2 rounded-lg">确认下注，发牌开始</button>
+<button onclick="startGame()" id="btnStart" class="btn-gold px-5 py-2 rounded-lg">确认下注，发牌开始</button>
 </div>
 
 <div id="gameOperate" class="hidden mt-4 flex justify-center gap-4">
-<button onclick="hitCard()" class="btn-gold px-6 py-2 rounded-lg">要牌</button>
-<button onclick="standCard()" class="btn-gold px-6 py-2 rounded-lg">停牌</button>
+<button onclick="hitCard()" class="btn-gold px-5 py-2 rounded-lg">要牌</button>
+<button onclick="standCard()" class="btn-gold px-5 py-2 rounded-lg">停牌</button>
 </div>
 
-<div id="gameResult" class="hidden mt-4 text-2xl font-bold text-center"></div>
+<div id="gameResult" class="hidden mt-4 text-xl font-bold text-center"></div>
 </div>
 </div>
 </div>
@@ -255,7 +285,6 @@ function showCoinEffect(){
 
 const STORAGE_KEY = "pokerGameData";
 let gameData;
-// 【修复】捕获localStorage读取异常，防止存档损坏直接卡死
 try{
   const raw = localStorage.getItem(STORAGE_KEY);
   gameData = raw ? JSON.parse(raw) : {users:{},currentUser:null};
@@ -363,7 +392,6 @@ function dailyReward(){
 
 function formatNum(n){return Number(n).toLocaleString();}
 
-// 【重点修复enterRoom】
 function enterRoom(lv){
   if(!user){alert("请先登录！");return;}
   roomLevel=lv;
@@ -551,3 +579,4 @@ function judgeResult(){
 </script>
 </body>
 </html>
+
