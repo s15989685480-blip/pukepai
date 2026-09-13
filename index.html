@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>豪华扑克终极版【横竖屏自适应】</title>
+<title>豪华扑克终极版【横竖屏自适应修复】</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <script>
@@ -28,7 +28,7 @@ tailwind.config = {
 *{font-family:casino;box-sizing:border-box;}
 body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-height:100vh;overflow-x:hidden;padding:0;margin:0;}
 .gold-gradient{background: linear-gradient(135deg,#d4af37,#fff1bc,#d4af37);-webkit-background-clip:text;color:transparent;}
-.table-bg{background:radial-gradient(circle,#10683b 0%,#083820 100%);box-shadow:inset 0 0 80px #042012,0 0 30px #000;position:relative;overflow:hidden;}
+.table-bg{background:radial-gradient(circle,#10683b 0%,#083820 100%);box-shadow:inset 0 0 80px #042012,0 0 30px #000;position:relative;overflow:hidden;min-height:70vh;}
 
 .table-bg::before{
   content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
@@ -58,25 +58,30 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 
 .stat-modal{backdrop-filter: blur(8px);}
 
-/* ====== 横屏布局 ====== */
+/* ====== 横屏布局修复  flex布局，模仿截图样式 ====== */
 @media (orientation: landscape){
   .table-bg{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr auto;
-    gap:1rem;
-    padding:1.5rem;
-    min-height:70vh;
-  }
-  .dealer-wrap{grid-column: 1 / -1;}
-  .player-wrap{}
-  .operate-wrap{
     display:flex;
     flex-direction:column;
-    justify-content:center;
-    align-items:center;
+    padding:1.5rem;
   }
-  #gameTable .border-y{display:none;}
+  .dealer-wrap{
+    text-align:center;
+  }
+  .landscape-row{
+    flex:1;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+  }
+  .player-wrap{
+    text-align:left;
+  }
+  .operate-wrap{
+    text-align:right;
+    padding-right:2rem;
+  }
+  #gameTable .border-y{display:none !important;}
   .card{
     width:min(90px,14vh);
     height:min(120px,20vh);
@@ -84,7 +89,10 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
   }
 }
 @media (orientation: portrait){
-  .dealer-wrap,.player-wrap,.operate-wrap{}
+  .landscape-row{display:block;}
+  .dealer-wrap,.player-wrap,.operate-wrap{
+    text-align:center;
+  }
 }
 </style>
 </head>
@@ -186,13 +194,14 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 
 <div class="border-y border-gold/20 my-4"></div>
 
-<div class="player-wrap text-center relative z-10">
+<div class="landscape-row">
+<div class="player-wrap relative z-10">
 <div class="text-gold text-lg">👤 你</div>
 <div id="playerCards" class="flex justify-center gap-2 mt-3 min-h-[100px] flex-wrap"></div>
 <div class="mt-1 text-sm">点数：<span id="playerPoint">0</span></div>
 </div>
 
-<div class="operate-wrap relative z-20 w-full px-2">
+<div class="operate-wrap relative z-20 px-2">
 <div id="betArea" class="text-center">
 <div class="mb-2">当前下注：<span id="betVal" class="text-yellow-300 text-lg">0</span></div>
 <div class="flex justify-center gap-2 mb-3 flex-wrap">
@@ -209,6 +218,7 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 </div>
 
 <div id="gameResult" class="hidden mt-4 text-xl font-bold text-center"></div>
+</div>
 </div>
 </div>
 </div>
@@ -243,7 +253,7 @@ function speak(text) {
 function playSound(snd){
   if(!audioEnabled||!firstPlay)return;
   snd.currentTime=0;
-  snd.play();
+  snd.play().catch(e=>{});
 }
 
 function toggleBgm() {
@@ -306,7 +316,14 @@ let playerCards = [];
 let dealerCards = [];
 
 function showPage(id){
-  ["loginModal","hallPage","gamePage"].forEach(x=>document.getElementById(x).classList.add('hidden'));
+  ["loginModal","hallPage","gamePage"].forEach(x=>{
+    const el = document.getElementById(x);
+    if(el.id === "loginModal"){
+      el.classList.add('hidden');
+    }else{
+      el.classList.add('hidden');
+    }
+  });
   document.getElementById(id).classList.remove('hidden');
 }
 
@@ -363,8 +380,8 @@ function loadUser(){
   if(!user.stat) user.stat = {total:0,win:0,lose:0,draw:0,profit:0};
   document.getElementById('hallUsername').innerText=gameData.currentUser;
   document.getElementById('hallCoin').innerText = formatNum(user.coin);
+  //修复：登录直接切大厅页面，不再等待音频初始化
   showPage("hallPage");
-  playBgm();
   speak("欢迎回来，游戏愉快");
 }
 
@@ -401,7 +418,6 @@ function enterRoom(lv){
   document.getElementById('gameCoin').innerText=formatNum(user.coin);
   resetTable();
   showPage("gamePage");
-  playBgm();
 }
 
 function backHall(){
@@ -579,4 +595,3 @@ function judgeResult(){
 </script>
 </body>
 </html>
-
