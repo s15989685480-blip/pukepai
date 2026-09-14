@@ -43,7 +43,6 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 .modal{backdrop-filter:blur(6px);}
 .btn-gold{background:linear-gradient(180deg,#e6c868,#b48c26);color:#111;font-weight:bold;box-shadow:0 4px 12px #d4af3744;transition:0.2s;}
 .btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 18px #d4af3766;}
-
 /*手机适配新增*/
 @media (max-width: 768px){
   .card{width:60px;height:88px;font-size:22px;}
@@ -73,6 +72,62 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
   </div>
 </div>
 
+<!--金融弹窗：银行绑定 / 兑换提现-->
+<div id="financeModal" class="modal fixed inset-0 bg-black/75 hidden flex items-center justify-center z-50">
+  <div class="bg-darkCasino border-2 border-gold/60 p-6 rounded-xl w-full max-w-md">
+    <h3 id="financeModalTitle" class="text-2xl text-center gold-gradient font-bold mb-5"></h3>
+    <div id="bindBankPanel">
+      <div class="mb-4">
+        <label class="block mb-2 text-gold">持卡人姓名</label>
+        <input id="bankRealName" class="w-full bg-black/40 border border-gold/40 px-4 py-3 rounded text-white outline-none focus:border-gold" placeholder="请输入姓名">
+      </div>
+      <div class="mb-5">
+        <label class="block mb-2 text-gold">银行卡号</label>
+        <input id="bankCardNo" class="w-full bg-black/40 border border-gold/40 px-4 py-3 rounded text-white outline-none focus:border-gold" placeholder="请输入银行卡号">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="saveBankInfo()" class="btn-gold py-3 rounded-lg">保存绑定</button>
+        <button onclick="closeFinanceModal()" class="bg-gray-700 py-3 rounded-lg">关闭</button>
+      </div>
+    </div>
+    <div id="exchangePanel" class="hidden">
+      <div class="mb-4">
+        <label class="block mb-2 text-gold">充值购买游戏币（1元 = 10000游戏币）</label>
+        <input id="payMoneyInput" type="number" min="1" class="w-full bg-black/40 border border-gold/40 px-4 py-3 rounded text-white outline-none focus:border-gold" placeholder="输入充值金额(元)">
+        <div class="text-gray-400 mt-1 text-sm">可获得游戏币：<span id="getCoinPreview">0</span></div>
+      </div>
+      <div class="flex gap-2 my-3">
+        <button onclick="fastRecharge(10)" class="flex-1 btn-gold py-2 rounded">10元</button>
+        <button onclick="fastRecharge(50)" class="flex-1 btn-gold py-2 rounded">50元</button>
+        <button onclick="fastRecharge(100)" class="flex-1 btn-gold py-2 rounded">100元</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="simPayCoin()" class="btn-gold py-3 rounded-lg">确认充值购买</button>
+      </div>
+      <hr class="border-gold/20 my-5">
+      <div class="mb-4">
+        <label class="block mb-2 text-gold">模拟提现（10000游戏币 = 1元）</label>
+        <input id="withdrawCoinInput" type="number" min="10000" class="w-full bg-black/40 border border-gold/40 px-4 py-3 rounded text-white outline-none focus:border-gold" placeholder="输入提现游戏币">
+        <div class="text-gray-400 mt-1 text-sm">预计现金：<span id="getMoneyPreview">0</span> 元</div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="simWithdraw()" class="bg-green-700 py-3 rounded-lg">申请提现</button>
+      </div>
+      <button onclick="openWithdrawRecord()" class="w-full mt-2 bg-blue-700 py-2 rounded-lg">📋提现记录</button>
+      <button onclick="closeFinanceModal()" class="w-full mt-2 bg-gray-700 py-2 rounded-lg">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!--提现记录弹窗-->
+<div id="recordModal" class="modal fixed inset-0 bg-black/75 hidden flex items-center justify-center z-50">
+  <div class="bg-darkCasino border-2 border-gold/60 p-6 rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto">
+    <h3 class="text-2xl text-center gold-gradient font-bold mb-4">📋提现记录</h3>
+    <div id="recordList" class="text-sm"></div>
+    <button onclick="closeRecordModal()" class="w-full mt-4 bg-gray-700 py-2 rounded-lg">关闭</button>
+  </div>
+</div>
+
 <!--大厅界面-->
 <div id="hallPage" class="hidden p-6 max-w-6xl mx-auto">
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -82,11 +137,13 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
     </div>
     <div class="flex items-center gap-4 flex-wrap">
       <div class="chip bg-blueChip shine text-xs">游戏币<br><span id="hallCoin">0</span></div>
+      <button onclick="toggleVoice()" id="voiceBtn" class="btn-gold px-4 py-2 rounded-lg">🔊语音开启</button>
+      <button onclick="openBindBank()" class="btn-gold px-4 py-2 rounded-lg">💳银行绑定</button>
+      <button onclick="openExchange()" class="btn-gold px-4 py-2 rounded-lg">💰兑换提现</button>
       <button onclick="dailyReward()" class="btn-gold px-5 py-2 rounded-lg">📅每日领取20万</button>
       <button onclick="logout()" class="bg-red-700 px-4 py-2 rounded-lg">退出登录</button>
     </div>
   </div>
-
   <h3 class="text-xl mb-4 text-gold">选择游戏房间</h3>
   <div class="grid md:grid-cols-3 gap-6">
     <div onclick="enterRoom(1)" class="border border-green-600/50 p-6 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
@@ -106,7 +163,6 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
     </div>
   </div>
 </div>
-
 <!--游戏桌页面-->
 <div id="gamePage" class="hidden p-4 max-w-7xl mx-auto">
   <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
@@ -118,7 +174,6 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
       <span>游戏币：<span id="gameCoin" class="text-yellow-300 text-xl">0</span></span>
     </div>
   </div>
-
   <!--豪华牌桌-->
   <div class="table-bg rounded-3xl p-4 md:p-6 min-h-[520px] relative overflow-hidden">
     <!--庄家区域-->
@@ -127,16 +182,13 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
       <div id="dealerCards" class="flex justify-center gap-2 md:gap-3 mt-3 min-h-[90px] md:min-h-[140px] flex-wrap"></div>
       <div class="mt-1">点数：<span id="dealerPoint">?</span></div>
     </div>
-
     <div class="border-y border-gold/20 my-5"></div>
-
     <!--玩家区域-->
     <div class="text-center">
       <div class="text-gold text-xl">👤 你</div>
       <div id="playerCards" class="flex justify-center gap-2 md:gap-3 mt-3 min-h-[90px] md:min-h-[140px] flex-wrap"></div>
       <div class="mt-1">点数：<span id="playerPoint">0</span></div>
     </div>
-
     <!--下注区-->
     <div class="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 w-full px-2">
       <div id="betArea" class="text-center">
@@ -148,28 +200,159 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
         </div>
         <button onclick="startGame()" id="btnStart" class="btn-gold px-6 py-2 rounded-lg">确认下注，发牌开始</button>
       </div>
-
       <div id="gameOperate" class="hidden mt-4 flex justify-center gap-4 flex-wrap">
         <button onclick="hitCard()" class="btn-gold px-6 py-2 rounded-lg">要牌</button>
         <button onclick="standCard()" class="btn-gold px-6 py-2 rounded-lg">停牌</button>
       </div>
-
       <div id="gameResult" class="hidden mt-4 text-2xl font-bold text-center"></div>
     </div>
   </div>
 </div>
 </div>
-
 <script>
-//语音播报函数 新增
+let voiceOn = true;
+//语音播报函数
 function speakText(text){
-  if(!window.speechSynthesis) return;
+  if(!voiceOn || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = "zh‑CN";
   utter.rate = 1;
   speechSynthesis.speak(utter);
 }
+//切换语音开关
+function toggleVoice(){
+  voiceOn = !voiceOn;
+  const btn = document.getElementById("voiceBtn");
+  if(voiceOn){
+    btn.innerText = "🔊语音开启";
+  }else{
+    btn.innerText = "🔇语音关闭";
+    window.speechSynthesis.cancel();
+  }
+}
+
+//快速充值按钮
+function fastRecharge(yuan){
+  document.getElementById("payMoneyInput").value = yuan;
+  document.getElementById("getCoinPreview").innerText = formatNum(yuan * 10000);
+}
+
+//==================== 金融模块 开始 ====================
+function openBindBank(){
+  document.getElementById("financeModal").classList.remove("hidden");
+  document.getElementById("financeModalTitle").innerText = "💳银行绑定";
+  document.getElementById("bindBankPanel").classList.remove("hidden");
+  document.getElementById("exchangePanel").classList.add("hidden");
+  document.getElementById("bankRealName").value = user.bankRealName || "";
+  document.getElementById("bankCardNo").value = user.bankCardNo || "";
+}
+function openExchange(){
+  document.getElementById("financeModal").classList.remove("hidden");
+  document.getElementById("financeModalTitle").innerText = "💰游戏币兑换与提现";
+  document.getElementById("bindBankPanel").classList.add("hidden");
+  document.getElementById("exchangePanel").classList.remove("hidden");
+  document.getElementById("payMoneyInput").value = "";
+  document.getElementById("withdrawCoinInput").value = "";
+  document.getElementById("getCoinPreview").innerText = "0";
+  document.getElementById("getMoneyPreview").innerText = "0";
+}
+function closeFinanceModal(){
+  document.getElementById("financeModal").classList.add("hidden");
+}
+function saveBankInfo(){
+  let name = document.getElementById("bankRealName").value.trim();
+  let card = document.getElementById("bankCardNo").value.trim();
+  if(!name || !card){
+    alert("姓名和银行卡号不能为空！");
+    return;
+  }
+  user.bankRealName = name;
+  user.bankCardNo = card;
+  saveData();
+  alert("银行卡绑定成功！");
+  closeFinanceModal();
+}
+//提现记录弹窗
+function openWithdrawRecord(){
+  closeFinanceModal();
+  document.getElementById("recordModal").classList.remove("hidden");
+  let listHtml = "";
+  if(!user.withdrawRecord) user.withdrawRecord = [];
+  if(user.withdrawRecord.length === 0){
+    listHtml = `<div class="text-gray-400 text-center py-4">暂无提现记录</div>`;
+  }else{
+    user.withdrawRecord.forEach(item=>{
+      listHtml += `
+      <div class="border border-gold/20 rounded p-3 mb-2">
+        <div>时间：${item.time}</div>
+        <div>扣游戏币：${formatNum(item.coin)}</div>
+        <div>提现金额：${item.money} 元</div>
+      </div>`;
+    })
+  }
+  document.getElementById("recordList").innerHTML = listHtml;
+}
+function closeRecordModal(){
+  document.getElementById("recordModal").classList.add("hidden");
+}
+
+//输入实时预览
+document.addEventListener("input",function(e){
+  if(e.target.id === "payMoneyInput"){
+    let yuan = Number(document.getElementById("payMoneyInput").value||0);
+    document.getElementById("getCoinPreview").innerText = formatNum(yuan * 10000);
+  }
+  if(e.target.id === "withdrawCoinInput"){
+    let coin = Number(document.getElementById("withdrawCoinInput").value||0);
+    document.getElementById("getMoneyPreview").innerText = (coin / 10000).toFixed(2);
+  }
+})
+//模拟充值购买游戏币 1元=10000游戏币
+function simPayCoin(){
+  let yuan = Number(document.getElementById("payMoneyInput").value);
+  if(!yuan || yuan < 1){
+    alert("请输入大于0的充值金额");
+    return;
+  }
+  let addCoin = yuan * 10000;
+  user.coin += addCoin;
+  saveData();
+  document.getElementById("hallCoin").innerText = formatNum(user.coin);
+  alert(`充值购买成功！\n充值${yuan}元，获得 ${formatNum(addCoin)} 游戏币`);
+  closeFinanceModal();
+}
+//模拟提现
+function simWithdraw(){
+  if(!user.bankRealName || !user.bankCardNo){
+    alert("请先完成银行卡绑定才可提现");
+    openBindBank();
+    return;
+  }
+  let withdrawCoin = Number(document.getElementById("withdrawCoinInput").value);
+  if(!withdrawCoin || withdrawCoin < 10000){
+    alert("提现最少10000游戏币");
+    return;
+  }
+  if(withdrawCoin > user.coin){
+    alert("游戏币余额不足");
+    return;
+  }
+  let getYuan = withdrawCoin / 10000;
+  user.coin -= withdrawCoin;
+  //写入提现记录
+  if(!user.withdrawRecord) user.withdrawRecord = [];
+  user.withdrawRecord.unshift({
+    time:new Date().toLocaleString(),
+    coin:withdrawCoin,
+    money:getYuan.toFixed(2)
+  })
+  saveData();
+  document.getElementById("hallCoin").innerText = formatNum(user.coin);
+  alert(`模拟提现申请提交\n扣减游戏币：${formatNum(withdrawCoin)}\n预计到账：${getYuan.toFixed(2)}元\n（本地模拟，无真实资金）`);
+  closeFinanceModal();
+}
+//==================== 金融模块 结束 ====================
 
 // 本地存储
 const STORAGE_KEY = "pokerGameData";
@@ -178,31 +361,35 @@ let user = null;
 let roomLevel = 1;
 let minBet = 1000;
 let bet = 0;
-
 // 卡牌
 const suits = ["♠","♥","♦","♣"];
 const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 let deck = [];
 let playerCards = [];
 let dealerCards = [];
-
 // UI控制
 function showPage(id){
   ["loginModal","hallPage","gamePage"].forEach(x=>document.getElementById(x).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
-
 // 注册
 function register(){
   let acc = document.getElementById('accInput').value.trim();
   let pwd = document.getElementById('pwdInput').value.trim();
   if(!acc||!pwd){alert("账号密码不能为空");return;}
   if(gameData.users[acc]){alert("账号已存在");return;}
-  gameData.users[acc]={pwd:pwd,coin:100000,lastDaily:""};
+  //新用户初始化银行卡字段
+  gameData.users[acc]={
+    pwd:pwd,
+    coin:100000,
+    lastDaily:"",
+    bankRealName:"",
+    bankCardNo:"",
+    withdrawRecord:[]
+  };
   saveData();
   alert("注册成功，请登录");
 }
-
 //登录
 function login(){
   let acc = document.getElementById('accInput').value.trim();
@@ -212,20 +399,21 @@ function login(){
   gameData.currentUser=acc;
   saveData();loadUser();
 }
-
 function loadUser(){
   user = gameData.users[gameData.currentUser];
+  //兼容旧账号补齐字段
+  if(user.bankRealName === undefined) user.bankRealName = "";
+  if(user.bankCardNo === undefined) user.bankCardNo = "";
+  if(user.withdrawRecord === undefined) user.withdrawRecord = [];
+
   document.getElementById('hallUsername').innerText=gameData.currentUser;
   document.getElementById('hallCoin').innerText = formatNum(user.coin);
   showPage("hallPage");
 }
-
 function logout(){
   gameData.currentUser=null;saveData();showPage("loginModal");
 }
-
 function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(gameData));}
-
 //每日领取20万
 function dailyReward(){
   let today = new Date().toLocaleDateString();
@@ -236,9 +424,7 @@ function dailyReward(){
   document.getElementById('hallCoin').innerText=formatNum(user.coin);
   alert("领取成功！获得200000游戏币");
 }
-
 function formatNum(n){return Number(n).toLocaleString();}
-
 //进入房间
 function enterRoom(lv){
   roomLevel=lv;
@@ -249,12 +435,10 @@ function enterRoom(lv){
   resetTable();
   showPage("gamePage");
 }
-
 function backHall(){
   document.getElementById('hallCoin').innerText=formatNum(user.coin);
   showPage("hallPage");
 }
-
 function resetTable(){
   bet=0;playerCards=[];dealerCards=[];
   document.getElementById('betVal').innerText=0;
@@ -268,7 +452,6 @@ function resetTable(){
   deck = createDeck();
   shuffleDeck(deck);
 }
-
 //牌组
 function createDeck(){
   let d=[];
@@ -283,21 +466,18 @@ function shuffleDeck(arr){
     [arr[i],arr[j]]=[arr[j],arr[i]];
   }
 }
-
 function addBet(num){
   if(user.coin<bet+num){alert("游戏币不足");return;}
   bet+=num;
   document.getElementById('betVal').innerText=formatNum(bet);
 }
 function clearBet(){bet=0;document.getElementById('betVal').innerText=0;}
-
 //渲染卡牌
 function renderCard(card,hide=false){
   if(hide) return `<div class="card card-back">🂠</div>`;
   let isRed = card.suit==='♥'||card.suit==='♦';
   return `<div class="card ${isRed?'card-red':'card-black'}">${card.val}${card.suit}</div>`;
 }
-
 //计算21点点数
 function calcPoint(cardArr){
   let sum=0;let aces=0;
@@ -309,7 +489,6 @@ function calcPoint(cardArr){
   while(sum>21&&aces>0){sum-=10;aces--;}
   return sum;
 }
-
 //开局
 function startGame(){
   if(bet<minBet){alert(`最低下注${formatNum(minBet)}`);return;}
@@ -321,12 +500,10 @@ function startGame(){
   speakText("发牌完毕，请选择要牌或者停牌");
   document.getElementById('gameOperate').classList.remove('hidden');
 }
-
 function renderGame(hideDealer){
   let pHtml = playerCards.map(c=>renderCard(c)).join("");
   document.getElementById('playerCards').innerHTML=pHtml;
   document.getElementById('playerPoint').innerText=calcPoint(playerCards);
-
   if(hideDealer){
     document.getElementById('dealerCards').innerHTML=renderCard(dealerCards[0],false)+renderCard(dealerCards[1],true);
     document.getElementById('dealerPoint').innerText="?";
@@ -336,7 +513,6 @@ function renderGame(hideDealer){
     document.getElementById('dealerPoint').innerText=calcPoint(dealerCards);
   }
 }
-
 //要牌
 function hitCard(){
   playerCards.push(deck.pop());
@@ -349,7 +525,6 @@ function hitCard(){
     speakText(`当前点数${p}`);
   }
 }
-
 //停牌，庄家自动操作结算
 function standCard(){
   document.getElementById('gameOperate').classList.add('hidden');
@@ -360,7 +535,6 @@ function standCard(){
   renderGame(false);
   setTimeout(()=>{judgeResult();},600);
 }
-
 function judgeResult(){
   let p = calcPoint(playerCards);
   let d = calcPoint(dealerCards);
@@ -394,16 +568,13 @@ function judgeResult(){
     voiceText="本局平局，筹码返还";
   }
   speakText(voiceText);
-
   if(win===1){user.coin += bet;}
   else if(win===-1){user.coin -= bet;}
   saveData();
   document.getElementById('gameCoin').innerText=formatNum(user.coin);
   user=gameData.users[gameData.currentUser];
-
   setTimeout(()=>{resetTable();},2200);
 }
-
 //自动登录
 (function init(){
   if(gameData.currentUser && gameData.users[gameData.currentUser]){
@@ -415,5 +586,4 @@ function judgeResult(){
 </script>
 </body>
 </html>
-
 
