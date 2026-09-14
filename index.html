@@ -43,10 +43,57 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 .modal{backdrop-filter:blur(6px);}
 .btn-gold{background:linear-gradient(180deg,#e6c868,#b48c26);color:#111;font-weight:bold;box-shadow:0 4px 12px #d4af3744;transition:0.2s;}
 .btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 18px #d4af3766;}
+
+/*==== AI对话悬浮窗口样式 ====*/
+.ai-chat-float{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  z-index:9999;
+}
+.ai-chat-btn{
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,#ff88bb,#ff5599);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;box-shadow:0 4px 14px #ff559960;
+  cursor:pointer;
+}
+.ai-chat-window{
+  width:340px;height:440px;
+  background:#111827;border:1px solid #ff77aa77;
+  border-radius:14px;overflow:hidden;
+  display:flex;flex-direction:column;
+  margin-bottom:12px;
+}
+.ai-chat-header{
+  background:#ff5588;padding:10px 14px;
+  font-weight:bold;color:white;display:flex;justify-content:space-between;align-items:center;
+}
+.ai-chat-content{
+  flex:1;padding:10px;overflow-y:auto;font-size:14px;
+}
+.msg-ai{
+  background:#ff447726;padding:8px 10px;border-radius:8px;margin:4px 0;max-width:85%;
+}
+.msg-user{
+  background:#3b82f644;padding:8px 10px;border-radius:8px;margin:4px 0 4px auto;max-width:85%;
+}
+.ai-chat-input-area{
+  display:flex;gap:6px;padding:8px;border-top:1px solid #ff77aa44;
+}
+.ai-chat-input-area input{
+  flex:1;background:#1f2937;border:1px solid #ff77aa50;border-radius:6px;
+  padding:8px;color:white;outline:none;
+}
+.ai-chat-input-area button{
+  background:#ff5588;border:none;border-radius:6px;padding:0 12px;color:white;
+}
+
 /*手机适配新增*/
 @media (max-width: 768px){
   .card{width:60px;height:88px;font-size:22px;}
   .chip{width:44px;height:44px;font-size:9px;}
+  .ai-chat-window{width:calc(100vw - 30px);height:400px;right:0;}
 }
 </style>
 </head>
@@ -126,6 +173,22 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
     <div id="recordList" class="text-sm"></div>
     <button onclick="closeRecordModal()" class="w-full mt-4 bg-gray-700 py-2 rounded-lg">关闭</button>
   </div>
+</div>
+
+<!--AI聊天悬浮窗口 新增-->
+<div class="ai-chat-float">
+  <div id="aiChatWindow" class="ai-chat-window hidden">
+    <div class="ai-chat-header">
+      <span>💖小甜AI助手</span>
+      <span onclick="toggleAiChat()" style="cursor:pointer;">✕</span>
+    </div>
+    <div id="aiChatContent" class="ai-chat-content"></div>
+    <div class="ai-chat-input-area">
+      <input id="aiMsgInput" placeholder="随便聊点什么..." onkeydown="if(event.key==='Enter')sendAiMsg()">
+      <button onclick="sendAiMsg()">发送</button>
+    </div>
+  </div>
+  <div class="ai-chat-btn" onclick="toggleAiChat()">💬</div>
 </div>
 
 <!--大厅界面-->
@@ -211,6 +274,104 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 </div>
 <script>
 let voiceOn = true;
+//AI聊天变量
+let aiVoice = null;
+let aiChatOpen = false;
+//优先加载甜美女生语音
+function initAiVoice(){
+  window.speechSynthesis.onvoiceschanged = ()=>{
+    const voices = window.speechSynthesis.getVoices();
+    //优先找中文甜美女声
+    aiVoice = voices.find(v=>v.lang.includes("zh") && (v.name.includes("Xiaoxiao")||v.name.includes("晓晓")||v.name.includes("Mei-Jia")||v.name.includes("小美")))||voices.find(v=>v.lang.startsWith("zh"))||voices[0];
+  }
+}
+//AI甜美语音朗读
+function aiSpeak(text){
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "zh‑CN";
+  u.rate = 0.92;
+  u.pitch = 1.15; //调高音调模拟甜美女生
+  if(aiVoice) u.voice = aiVoice;
+  window.speechSynthesis.speak(u);
+}
+//切换AI聊天窗口
+function toggleAiChat(){
+  aiChatOpen = !aiChatOpen;
+  const win = document.getElementById("aiChatWindow");
+  if(aiChatOpen){
+    win.classList.remove("hidden");
+    //打开窗口主动嘘寒问暖
+    addAiMsg("哈喽~😊 你来啦，今天过得怎么样呀？玩牌累不累，想聊什么都可以跟我说哦！");
+  }else{
+    win.classList.add("hidden");
+  }
+}
+//追加AI消息
+function addAiMsg(text){
+  const cont = document.getElementById("aiChatContent");
+  const div = document.createElement("div");
+  div.className = "msg-ai";
+  div.innerText = text;
+  cont.appendChild(div);
+  cont.scrollTop = cont.scrollHeight;
+  aiSpeak(text);
+}
+//追加用户消息
+function addUserMsg(text){
+  const cont = document.getElementById("aiChatContent");
+  const div = document.createElement("div");
+  div.className = "msg-user";
+  div.innerText = text;
+  cont.appendChild(div);
+  cont.scrollTop = cont.scrollHeight;
+}
+//简易AI对话库（模拟真人闲聊，浏览器无法直接调用百度搜索API，如需接入百度搜索需要后端服务中转）
+function getAiReply(userInput){
+  const q = userInput.trim().toLowerCase();
+  const replyLib = [
+    {kw:["你好","hi","哈喽"],res:["你好呀😘！很高兴和你聊天，今天心情好不好？","哈喽哈喽~ 有什么想跟我聊聊的吗？"]},
+    {kw:["累","疲惫","好困"],res:["哎呀辛苦啦，要记得休息一下哦，不要玩太久啦🥺","那稍微歇一会吧，放松放松，不要熬太晚~"]},
+    {kw:["吃饭","吃了吗"],res:["有没有好好吃饭呀，按时吃饭身体才棒棒✨","我不用吃饭哒，你可要记得好好吃饭哦！"]},
+    {kw:["天气"],res:["今天外面天气怎么样，出门记得照顾好自己哦😊","如果天气冷要多穿衣服，热就注意防暑啦！"]},
+    {kw:["开心","高兴"],res:["哇，看到你开心我也跟着开心啦🥰！","真好呀，希望你天天都开开心心的！"]},
+    {kw:["难过","不开心","伤心"],res:["怎么不开心啦，可以跟我说说，我听你倾诉😔","不要不开心啦，烦心事说出来会舒服很多哦。"]},
+    {kw:["几点","时间"],res:["我看不到时钟哦，你可以自己看下设备时间呢⏰"]},
+    {kw:["打牌","游戏","扑克"],res:["打牌娱乐一下可以，可不要上头，理性一点玩哦💖","祝你手气旺旺，但千万不要过度沉迷游戏哈！"]},
+    {kw:["多大","年龄","几岁"],res:["年龄是秘密啦，我就一直陪你聊天就好啦😜"]},
+    {kw:["晚安","睡觉"],res:["晚安晚安，祝你睡个甜甜的好梦，好好休息🌙","早点休息吧，不要熬夜，我们下次再聊~"]},
+  ];
+  for(let item of replyLib){
+    for(let k of item.kw){
+      if(q.includes(k)){
+        return item.res[Math.floor(Math.random()*item.res.length)];
+      }
+    }
+  }
+  //兜底随机回复，模拟真人闲聊
+  const fallback = [
+    "原来是这样呀，继续跟我讲讲呗😊",
+    "嗯嗯，我在听呢，再多说一点好不好~",
+    "哇，还有吗，我很感兴趣哦💗",
+    "哈哈，挺有意思的，那然后呢？",
+    "这样呀，那你现在在想什么呢？"
+  ];
+  return fallback[Math.floor(Math.random()*fallback.length)];
+}
+
+function sendAiMsg(){
+  const inp = document.getElementById("aiMsgInput");
+  const txt = inp.value.trim();
+  if(!txt) return;
+  addUserMsg(txt);
+  inp.value = "";
+  //模拟思考延迟
+  setTimeout(()=>{
+    const rep = getAiReply(txt);
+    addAiMsg(rep);
+  },650);
+}
+
 //语音播报函数
 function speakText(text){
   if(!voiceOn || !window.speechSynthesis) return;
@@ -577,6 +738,7 @@ function judgeResult(){
 }
 //自动登录
 (function init(){
+  initAiVoice();
   if(gameData.currentUser && gameData.users[gameData.currentUser]){
     loadUser();
   }else{
@@ -586,3 +748,4 @@ function judgeResult(){
 </script>
 </body>
 </html>
+
