@@ -33,7 +33,7 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 .card-back{background:linear-gradient(135deg,#153460,#0b2040);border:3px solid #D4AF37;color:#D4AF37;}
 .card-red{color:#d62828;}
 .card-black{color:#111111;}
-.chip{width:44px;height:44px;border-radius:50%;border:3px solid #fff2;display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;box-shadow:0 3px 8px #0009;}
+.chip{width:60px;height:60px;border-radius:50%;border:3px solid #fff2;display:flex;align-items:center;justify-content:center;font-size:12px;color:white;font-weight:bold;box-shadow:0 3px 8px #0009;}
 .shine{animation:shine 2s infinite linear;}
 @keyframes shine{
   0%{filter:brightness(1);}
@@ -46,7 +46,7 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
 /*手机适配新增*/
 @media (max-width: 768px){
   .card{width:60px;height:88px;font-size:22px;}
-  .chip{width:36px;height:36px;font-size:9px;}
+  .chip{width:44px;height:44px;font-size:9px;}
 }
 </style>
 </head>
@@ -148,17 +148,17 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
   <div class="grid md:grid-cols-3 gap-6">
     <div onclick="enterRoom(1)" class="border border-green-600/50 p-6 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
       <h4 class="text-2xl text-green-400">🟢 菜鸟场</h4>
-      <p class="text-gray-300 mt-2">最低下注：1000</p>
+      <p class="text-gray-300 mt-2">最低下注：10000</p>
       <p class="text-gray-400">适合新手练习</p>
     </div>
     <div onclick="enterRoom(2)" class="border border-blue-600/50 p-6 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
       <h4 class="text-2xl text-blue-400">🔵 普通场</h4>
-      <p class="text-gray-300 mt-2">最低下注：10000</p>
+      <p class="text-gray-300 mt-2">最低下注：100000</p>
       <p class="text-gray-400">中等筹码对战</p>
     </div>
     <div onclick="enterRoom(3)" class="border border-red-600/50 p-6 rounded-xl bg-darkCasino hover:border-gold cursor-pointer transition hover:scale-[1.02]">
       <h4 class="text-2xl text-red-400">🔴 高手场</h4>
-      <p class="text-gray-300 mt-2">最低下注：100000</p>
+      <p class="text-gray-300 mt-2">最低下注：1000000</p>
       <p class="text-gray-400">高风险高回报</p>
     </div>
   </div>
@@ -194,8 +194,8 @@ body{background: radial-gradient(ellipse at center,#1a273b 0%,#050911 100%);min-
       <div id="betArea" class="text-center">
         <div class="mb-3">当前下注：<span id="betVal" class="text-yellow-300 text-xl">0</span></div>
         <div class="flex justify-center gap-2 mb-3">
-          <button onclick="addBet(1000)" class="chip bg-blueChip">+1000</button>
-          <button onclick="addBet(10000)" class="chip bg-redChip">+1万</button>
+          <button onclick="addBet(10000)" class="chip bg-blueChip">+1万</button>
+          <button onclick="addBet(100000)" class="chip bg-redChip">+10万</button>
           <button onclick="clearBet()" class="chip bg-gray-600">清空</button>
         </div>
         <button onclick="startGame()" id="btnStart" class="btn-gold px-6 py-2 rounded-lg">确认下注，发牌开始</button>
@@ -359,7 +359,7 @@ const STORAGE_KEY = "pokerGameData";
 let gameData = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{"users":{},"currentUser":null}');
 let user = null;
 let roomLevel = 1;
-let minBet = 1000;
+let minBet = 10000;
 let bet = 0;
 // 卡牌
 const suits = ["♠","♥","♦","♣"];
@@ -428,9 +428,9 @@ function formatNum(n){return Number(n).toLocaleString();}
 //进入房间
 function enterRoom(lv){
   roomLevel=lv;
-  if(lv===1){minBet=1000;document.getElementById('roomTitle').innerText="🟢菜鸟场（最低下注1000）";}
-  if(lv===2){minBet=10000;document.getElementById('roomTitle').innerText="🔵普通场（最低下注10000）";}
-  if(lv===3){minBet=100000;document.getElementById('roomTitle').innerText="🔴高手场（最低下注100000）";}
+  if(lv===1){minBet=10000;document.getElementById('roomTitle').innerText="🟢菜鸟场（最低下注10000）";}
+  if(lv===2){minBet=100000;document.getElementById('roomTitle').innerText="🔵普通场（最低下注100000）";}
+  if(lv===3){minBet=1000000;document.getElementById('roomTitle').innerText="🔴高手场（最低下注1000000）";}
   document.getElementById('gameCoin').innerText=formatNum(user.coin);
   resetTable();
   showPage("gamePage");
@@ -586,4 +586,3 @@ function judgeResult(){
 </script>
 </body>
 </html>
-
